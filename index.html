@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mirza's journal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Special+Elite&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --paper-bg: #fdfbf7;
+            --ink: #2c2f33;
+            --blue-ink: #3b5998;
+            --tape: rgba(235, 230, 210, 0.7);
+            --polaroid: #ffffff;
+            --accent-warm: #d4a373;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            color: var(--ink);
+            font-family: 'Special Elite', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            perspective: 1200px;
+            background-color: #000;
+        }
+
+        .video-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100vw;
+            min-height: 100vh;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%) scale(1.05);
+            z-index: -10;
+            object-fit: cover;
+            filter: brightness(0.5) sepia(0.4);
+        }
+
+        #dust-container {
+            position: fixed;
+            inset: 0;
+            z-index: -5;
+            pointer-events: none;
+        }
+
+        .dust-mote {
+            position: absolute;
+            background: var(--accent-warm);
+            border-radius: 50%;
+            opacity: 0;
+            animation: driftUp linear infinite;
+        }
+
+        @keyframes driftUp {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            50% { opacity: 0.5; box-shadow: 0 0 10px var(--accent-warm); }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        #welcome-screen {
+            position: fixed;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: rgba(15, 12, 10, 0.5);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 1.5s ease;
+        }
+
+        #welcome-screen.fade-out {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            pointer-events: none;
+        }
+
+        .welcome-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #welcome-screen.fade-out .welcome-content {
+            transform: scale(1.1) translateY(-20px);
+            letter-spacing: 8px;
+            filter: blur(10px);
+            opacity: 0;
+        }
+
+        .icon-ring {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .icon-ring::before, .icon-ring::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid rgba(253, 251, 247, 0.6);
+            animation: ripple 2.5s infinite ease-out;
+        }
+
+        .icon-ring::after {
+            animation-delay: 1.25s;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+
+        .welcome-icon {
+            color: #fdfbf7;
+            font-size: 2.2em;
+            z-index: 2;
+            text-shadow: 0 0 20px rgba(253, 251, 247, 0.5);
+        }
+
+        .welcome-text {
+            font-family: 'Caveat', cursive;
+            color: #fdfbf7;
+            font-size: 3em;
+            letter-spacing: 4px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            animation: floatText 4s ease-in-out infinite;
+        }
+
+        @keyframes floatText {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .tilt-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            opacity: 0;
+            transform: translateY(60px) rotate(-5deg);
+            transition: opacity 1.8s ease, transform 1.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .tilt-wrapper.show {
+            opacity: 1;
+            transform: translateY(0) rotate(0deg);
+        }
+
+        .paper-card {
+            background-color: var(--paper-bg);
+            background-image: repeating-linear-gradient(transparent, transparent 31px, #d2e4e1 31px, #d2e4e1 32px);
+            border-radius: 4px;
+            padding: 40px 30px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6), inset 0 0 30px rgba(139, 69, 19, 0.05);
+            border-left: 2px dashed #e6e0d4;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            position: relative;
+        }
+
+        .coffee-stain {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid rgba(139, 69, 19, 0.15);
+            box-shadow: inset 0 0 10px rgba(139, 69, 19, 0.05);
+            pointer-events: none;
+            z-index: 1;
+            transform: rotate(30deg);
+        }
+
+        .coffee-stain::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -5px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid rgba(139, 69, 19, 0.1);
+        }
+
+        .tape {
+            position: absolute;
+            background: var(--tape);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 5;
+        }
+
+        .tape-1 {
+            width: 130px;
+            height: 28px;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+        }
+
+        .tape-2 {
+            width: 80px;
+            height: 22px;
+            bottom: 20px;
+            right: -15px;
+            transform: rotate(-45deg);
+        }
+
+        .card-inner {
+            transform: translateZ(25px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .polaroid-box {
+            background: var(--polaroid);
+            padding: 10px 10px 35px 10px;
+            box-shadow: 2px 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
+            transform: rotate(-3deg);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .polaroid-box:hover {
+            transform: rotate(2deg) scale(1.08);
+            box-shadow: 5px 15px 25px rgba(0,0,0,0.3);
+        }
+
+        .avatar {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border: 1px solid #eee;
+            filter: sepia(0.3) contrast(1.1) saturate(0.8);
+            transition: 0.3s;
+        }
+
+        .polaroid-box:hover .avatar {
+            filter: sepia(0) contrast(1) saturate(1);
+        }
+
+        .polaroid-caption {
+            font-family: 'Caveat', cursive;
+            font-size: 1.6em;
+            color: var(--blue-ink);
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+
+        .name {
+            font-family: 'Caveat', cursive;
+            font-size: 3.2em;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 5px;
+            transform: rotate(-2deg);
+            position: relative;
+        }
+
+        .name::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: -10%;
+            width: 120%;
+            height: 3px;
+            background: rgba(59, 89, 152, 0.4);
+            border-radius: 5px;
+            transform: rotate(2deg);
+        }
+
+        .bio-strip {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 8px 18px;
+            border: 1px solid rgba(0,0,0,0.1);
+            font-size: 0.85em;
+            text-align: left;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            width: 100%;
+        }
+
+        .valo-id {
+            color: var(--blue-ink);
+            font-weight: bold;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .social-btn {
+            color: var(--ink);
+            font-size: 1.4em;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .social-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid var(--ink);
+            border-radius: 40% 60% 50% 40% / 50% 40% 60% 50%;
+            transition: 0.3s;
+        }
+
+        .social-btn:hover {
+            color: var(--blue-ink);
+            transform: scale(1.15) rotate(8deg);
+        }
+
+        .social-btn:hover::before {
+            border-color: var(--blue-ink);
+            background: rgba(59, 89, 152, 0.1);
+            border-radius: 50%;
+        }
+
+        .widget-container {
+            width: 100%;
+            position: relative;
+            transform: rotate(1deg);
+            transition: 0.4s;
+            margin-bottom: 25px;
+        }
+
+        .widget-container:hover {
+            transform: rotate(0deg) scale(1.03);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .discord-widget {
+            width: 100%;
+            border-radius: 8px;
+            filter: sepia(0.2) contrast(0.95);
+        }
+
+        .audio-player-widget {
+            width: 100%;
+            border: 1.5px dashed rgba(44, 47, 51, 0.3);
+            background: rgba(253, 251, 247, 0.5);
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transform: rotate(-1deg);
+            transition: 0.3s;
+        }
+
+        .audio-player-widget:hover {
+            background: rgba(253, 251, 247, 0.9);
+            transform: rotate(0deg) scale(1.02);
+            border-color: var(--blue-ink);
+        }
+
+        .play-toggle {
+            width: 35px;
+            height: 35px;
+            background: transparent;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--ink);
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9em;
+        }
+
+        .play-toggle:hover {
+            color: var(--blue-ink);
+            border-color: var(--blue-ink);
+            transform: scale(1.1);
+        }
+
+        .song-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .song-title {
+            font-family: 'Caveat', cursive;
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1;
+        }
+
+        .visualizer {
+            display: flex;
+            gap: 3px;
+            align-items: flex-end;
+            height: 18px;
+        }
+
+        .bar {
+            width: 3px;
+            background: var(--blue-ink);
+            border-radius: 3px;
+            animation: bounce 1s ease-in-out infinite;
+            transform-origin: bottom;
+        }
+
+        .bar:nth-child(2) { animation-delay: 0.2s; }
+        .bar:nth-child(3) { animation-delay: 0.4s; }
+        .bar:nth-child(4) { animation-delay: 0.1s; }
+
+        .visualizer.paused .bar {
+            animation-play-state: paused;
+            transform: scaleY(0.2);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scaleY(0.3); opacity: 0.6; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+
+        .doodle {
+            position: absolute;
+            font-family: 'Caveat', cursive;
+            color: var(--blue-ink);
+            font-size: 1.3em;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .doodle-1 { top: 70px; right: 15px; transform: rotate(15deg); }
+        .doodle-2 { bottom: 130px; left: -10px; transform: rotate(-25deg); font-size: 1.6em; }
+        
+        .now-playing {
+            position: absolute;
+            top: 20px;
+            left: -20px;
+            font-family: 'Caveat', cursive;
+            color: var(--ink);
+            font-size: 1.1em;
+            background: #fff;
+            padding: 2px 8px;
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            transform: rotate(-10deg);
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 1s 1s ease;
+        }
+
+        .tilt-wrapper.show .now-playing {
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .tilt-wrapper {
+                padding: 15px;
+            }
+            .paper-card {
+                padding: 30px 20px;
+            }
+            .name {
+                font-size: 2.6em;
+            }
+            .avatar {
+                width: 100px;
+                height: 100px;
+            }
+            .polaroid-box {
+                padding: 8px 8px 30px 8px;
+            }
+            .bio-strip {
+                font-size: 0.8em;
+                padding: 8px 12px;
+            }
+            .social-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+            .welcome-text {
+                font-size: 2.2em;
+            }
+            .song-title {
+                font-size: 1.2em;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="lagu.mp3" type="audio/mpeg">
+    </audio>
+
+    <video id="bg-video" class="video-bg" loop muted playsinline>
+        <source src="video.mp4" type="video/mp4">
+    </video>
+
+    <div id="dust-container"></div>
+
+    <div id="welcome-screen">
+        <div class="welcome-content">
+            <div class="icon-ring">
+                <i class="fas fa-headphones-alt welcome-icon"></i>
+            </div>
+            <div class="welcome-text">click to enter</div>
+        </div>
+    </div>
+
+    <div class="tilt-wrapper" id="tilt-zone">
+        <div class="paper-card" id="tilt-card">
+            
+            <div class="coffee-stain"></div>
+            <div class="tape tape-1"></div>
+            <div class="tape tape-2"></div>
+            
+            <div class="card-inner">
+                
+                <div class="now-playing">🎵 music on</div>
+                <div class="doodle doodle-1">meow! 🐾</div>
+                <div class="doodle doodle-2">✨</div>
+
+                <div class="polaroid-box">
+                    <img src="image.jpg" alt="mirza" class="avatar" onerror="this.src='https://i.ibb.co.com/b5gT9tsr/IMG-20260428-180252.jpg'">
+                    <div class="polaroid-caption">that's me!</div>
+                </div>
+
+                <h1 class="name">mirza</h1>
+
+                <div class="bio-strip">
+                    > arch linux & hyprland enthusiast<br>
+                    > living in the cozy lo-fi space<br>
+                    > currently vibing playing valo<br>
+                    > <i class="fas fa-crosshairs"></i> <span class="valo-id">NAdriayan#Mirza</span>
+                </div>
+
+                <div class="social-icons">
+                    <a href="https://github.com/Kazemir-Zane" target="_blank" class="social-btn"><i class="fab fa-github"></i></a>
+                    <a href="https://discord.gg/SxHNkeURdJ" target="_blank" class="social-btn"><i class="fab fa-discord"></i></a>
+                    <a href="https://www.instagram.com/mzaa_andr/" target="_blank" class="social-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="https://steamcommunity.com/id/KazemirZane/" target="_blank" class="social-btn"><i class="fab fa-steam"></i></a>
+                </div>
+
+                <div class="widget-container">
+                    <div class="tape" style="width: 50px; height: 18px; top: -6px; left: 15px; transform: rotate(-5deg); backdrop-filter: blur(2px);"></div>
+                    <img src="https://discord.c99.nl/widget/theme-5/1089547617521913987.png" alt="Discord Status" class="discord-widget">
+                </div>
+
+                <div class="audio-player-widget">
+                    <button class="play-toggle" id="play-toggle-btn">
+                        <i class="fas fa-pause" id="play-icon"></i>
+                    </button>
+                    <div class="song-details">
+                        <div class="song-title">Tea Time - 샛별</div>
+                    </div>
+                    <div class="visualizer paused" id="visualizer">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const mainWrapper = document.getElementById('tilt-zone');
+        const bgMusic = document.getElementById('bg-music');
+        const bgVideo = document.getElementById('bg-video');
+        const playToggleBtn = document.getElementById('play-toggle-btn');
+        const playIcon = document.getElementById('play-icon');
+        const visualizer = document.getElementById('visualizer');
+
+        welcomeScreen.addEventListener('click', () => {
+            welcomeScreen.classList.add('fade-out');
+            mainWrapper.classList.add('show');
+            
+            bgMusic.play().catch(e => console.log(e));
+            bgVideo.play().catch(e => console.log(e));
+            
+            visualizer.classList.remove('paused');
+            playIcon.className = 'fas fa-pause';
+        });
+
+        playToggleBtn.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                playIcon.className = 'fas fa-pause';
+                visualizer.classList.remove('paused');
+            } else {
+                bgMusic.pause();
+                playIcon.className = 'fas fa-play';
+                visualizer.classList.add('paused');
+            }
+        });
+
+        const dustContainer = document.getElementById('dust-container');
+        for (let i = 0; i < 40; i++) {
+            let mote = document.createElement('div');
+            mote.classList.add('dust-mote');
+            mote.style.width = `${Math.random() * 3 + 1}px`;
+            mote.style.height = mote.style.width;
+            mote.style.left = `${Math.random() * 100}vw`;
+            mote.style.animationDelay = `${Math.random() * 10}s`;
+            mote.style.animationDuration = `${Math.random() * 15 + 10}s`;
+            dustContainer.appendChild(mote);
+        }
+
+        const card = document.getElementById('tilt-card');
+        
+        mainWrapper.addEventListener('mousemove', (e) => {
+            if(!mainWrapper.classList.contains('show')) return;
+
+            const rect = mainWrapper.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / 35) * -1; 
+            const rotateY = ((x - centerX) / 35);
+            
+            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        mainWrapper.addEventListener('mouseleave', () => {
+            card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+        });
+    </script>
+</body>
+</html>
