@@ -150,7 +150,7 @@
             background-color: var(--paper-bg);
             background-image: repeating-linear-gradient(transparent, transparent 31px, #d2e4e1 31px, #d2e4e1 32px);
             border-radius: 4px; padding: 40px 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.6), inset 0 0 30px rgba(139, 69, 19, 0.05);
-            border-left: 2px dashed #e6e0d4; transform-style: preserve-3d; transition: transform 0.1s ease-out; position: relative;
+            border-left: 2px dashed #e6e0d4; transform-style: preserve-3d; transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative;
         }
         .paper-card::after {
             content: ''; position: absolute; bottom: 0; right: 0; width: 0; height: 0; border-style: solid;
@@ -227,9 +227,10 @@
         .bio-strip {
             background: rgba(255, 255, 255, 0.7); padding: 12px 18px; border: 1px solid rgba(0,0,0,0.1);
             font-size: 0.85em; text-align: left; line-height: 1.7; margin-bottom: 25px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.05); border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; width: 100%;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05); border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; width: 100%; min-height: 140px; overflow: hidden; position: relative;
         }
-        .bio-line { opacity: 0; transform: translateX(-10px); transition: all 0.4s ease; }
+        
+        .bio-line { opacity: 0; transform: translateX(-10px); transition: all 0.4s ease; min-height: 24px; }
         .bio-line.visible { opacity: 1; transform: translateX(0); }
         .cursor { display: inline-block; width: 8px; height: 1.2em; background-color: var(--ink); vertical-align: middle; margin-left: 5px; animation: blink 1s step-end infinite; opacity: 0; }
         .cursor.active { opacity: 1; }
@@ -258,7 +259,6 @@
             100% { transform: translate(var(--sx), var(--sy)) scale(1) rotate(var(--sr)); opacity: 0; }
         }
 
-        .bio-strip { overflow: hidden; }
         .bio-ripple {
             position: absolute; width: 100px; height: 100px; border-radius: 50%;
             background: rgba(59,89,152,0.15); transform: translate(-50%, -50%) scale(0);
@@ -826,7 +826,7 @@
                         <div class="about-section">
                             <div class="about-note">
                                 <span class="about-label">👤 who am i?</span>
-                                mirza. 19 y/o. born Feb 14 💙<br>
+                                mirza. 26 y/o. born Feb 14 💙<br>
                                 a tech nerd who loves lo-fi &amp; late nights.<br>
                                 arch linux + hyprland is my whole personality.
                                 <div class="about-stamp">~ written in pencil ~</div>
@@ -923,55 +923,23 @@
 
         let isTiltActive = false;
 
-        function parseLineSegments(lineEl) {
-            const segments = [];
-            lineEl.childNodes.forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE) segments.push({ type: 'text', content: node.textContent });
-                else if (node.nodeType === Node.ELEMENT_NODE) segments.push({ type: 'html', content: node.outerHTML });
-            });
-            return segments;
-        }
-
         function startTypingEffect() {
-            const lines = Array.from(document.querySelectorAll('.bio-line'));
-            const lineSegments = lines.map(line => {
-                const segs = parseLineSegments(line);
-                line.innerHTML = ''; line.style.opacity = '1'; line.style.transform = 'translateX(0)';
-                return segs;
-            });
-            let li = 0;
-            function typeLine(el, segments, done) {
-                let si = 0;
-                function nextSeg() {
-                    if (si >= segments.length) { done(); return; }
-                    const seg = segments[si++];
-                    if (seg.type === 'html') {
-                        el.insertAdjacentHTML('beforeend', seg.content); nextSeg();
-                    } else {
-                        const chars = Array.from(seg.content); let ci = 0;
-                        function typeChar() {
-                            if (ci >= chars.length) { nextSeg(); return; }
-                            el.insertAdjacentText('beforeend', chars[ci++]);
-                            setTimeout(typeChar, 32 + Math.random() * 22);
-                        }
-                        typeChar();
+            const lines = document.querySelectorAll('.bio-line');
+            lines.forEach((line, index) => {
+                setTimeout(() => {
+                    line.classList.add('visible');
+                    if (index === lines.length - 1) {
+                        document.getElementById('cursor').classList.add('active');
                     }
-                }
-                nextSeg();
-            }
-            function nextLine() {
-                if (li >= lines.length) { document.getElementById('cursor').classList.add('active'); return; }
-                const idx = li++;
-                setTimeout(() => typeLine(lines[idx], lineSegments[idx], nextLine), idx === 0 ? 800 : 180);
-            }
-            nextLine();
+                }, 800 + (index * 450));
+            });
         }
 
         welcomeScreen.addEventListener('click', () => {
             welcomeScreen.classList.add('fade-out');
             mainWrapper.classList.add('show');
             
-            setTimeout(() => { isTiltActive = true; }, 1800);
+            setTimeout(() => { isTiltActive = true; }, 2200);
 
             bgMusic.play().catch(() => {}); bgVideo.play().catch(() => {});
             document.getElementById('visualizer').classList.remove('paused');
@@ -1065,19 +1033,29 @@
 
         if (!isMobile) {
             let tiltRAF = null;
-            mainWrapper.addEventListener('mousemove', (e) => {
+            document.addEventListener('mousemove', (e) => {
                 if (!isTiltActive) return;
                 if (!mainWrapper.classList.contains('show')) return;
                 if (tiltRAF) return;
+                
                 tiltRAF = requestAnimationFrame(() => {
-                    const r = mainWrapper.getBoundingClientRect();
-                    const rx = ((e.clientY - r.top - r.height/2) / 35) * -1;
-                    const ry = (e.clientX - r.left - r.width /2) / 35;
+                    const cx = window.innerWidth / 2;
+                    const cy = window.innerHeight / 2;
+                    
+                    let rx = ((e.clientY - cy) / 45) * -1;
+                    let ry = ((e.clientX - cx) / 45);
+                    
+                    rx = Math.max(-12, Math.min(12, rx));
+                    ry = Math.max(-12, Math.min(12, ry));
+                    
                     card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
                     tiltRAF = null;
                 });
             }, { passive: true });
-            mainWrapper.addEventListener('mouseleave', () => card.style.transform = 'rotateX(0deg) rotateY(0deg)');
+            
+            document.addEventListener('mouseleave', () => {
+                if(isTiltActive) card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            });
         }
 
         const nameEl = document.getElementById('name-el');
@@ -1234,9 +1212,7 @@
         });
 
         let currentMusicIdx = -1;
-        const musicToasts = [
-            '🎵 vibe check: passed','🎶 lowkey a banger','☕ tea time energy','🐾 paw approved','✨ this one hits different','💙 mood: this song'
-        ];
+        const musicToasts = ['🎵 vibe check: passed','🎶 lowkey a banger','☕ tea time energy','🐾 paw approved','✨ this one hits different','💙 mood: this song'];
         document.querySelectorAll('.music-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.stopPropagation();
