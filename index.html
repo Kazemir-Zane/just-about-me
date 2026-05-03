@@ -212,6 +212,7 @@
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
             position: relative;
+            cursor: crosshair; /* Gimmick tipis cursor */
         }
 
         .coffee-stain {
@@ -223,9 +224,13 @@
             border-radius: 50%;
             border: 4px solid rgba(139, 69, 19, 0.15);
             box-shadow: inset 0 0 10px rgba(139, 69, 19, 0.05);
-            pointer-events: none;
             z-index: 1;
             transform: rotate(30deg);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .coffee-stain:hover {
+            transform: rotate(60deg) scale(1.05);
         }
 
         .coffee-stain::after {
@@ -273,6 +278,7 @@
             z-index: 2;
         }
 
+        /* Polaroid Flash Effect */
         .polaroid-box {
             background: var(--polaroid);
             padding: 10px 10px 35px 10px;
@@ -282,6 +288,23 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             cursor: pointer;
+            overflow: hidden;
+        }
+
+        .polaroid-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease-out;
+        }
+
+        .polaroid-box.flash::before {
+            opacity: 0.9;
+            transition: none;
         }
 
         .polaroid-box:hover {
@@ -337,7 +360,7 @@
 
         .bio-strip {
             background: rgba(255, 255, 255, 0.7);
-            padding: 8px 18px;
+            padding: 12px 18px;
             border: 1px solid rgba(0,0,0,0.1);
             font-size: 0.85em;
             text-align: left;
@@ -346,6 +369,38 @@
             box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
             border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             width: 100%;
+        }
+
+        /* Gimmick: Terminal Typing Effect */
+        .bio-line {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.4s ease;
+        }
+
+        .bio-line.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.2em;
+            background-color: var(--ink);
+            vertical-align: middle;
+            margin-left: 5px;
+            animation: blink 1s step-end infinite;
+            opacity: 0;
+        }
+
+        .cursor.active {
+            opacity: 1;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
 
         .valo-id {
@@ -507,6 +562,24 @@
         .doodle-1 { top: 70px; right: 15px; transform: rotate(15deg); }
         .doodle-2 { bottom: 130px; left: -10px; transform: rotate(-25deg); font-size: 1.6em; }
         
+        /* Gimmick: Paw Print Click Effect */
+        @keyframes pawFade {
+            0% { opacity: 0; transform: scale(0.5) rotate(calc(var(--rot) * 1deg)); }
+            20% { opacity: 0.5; transform: scale(1.2) rotate(calc(var(--rot) * 1deg)); }
+            100% { opacity: 0; transform: scale(0.8) rotate(calc(var(--rot) * 1deg)); }
+        }
+
+        .paw-print {
+            position: absolute;
+            color: var(--blue-ink);
+            font-size: 1.2em;
+            pointer-events: none;
+            z-index: 100;
+            animation: pawFade 1.5s forwards;
+            opacity: 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
         .now-playing {
             position: absolute;
             top: 20px;
@@ -562,6 +635,251 @@
             }
         }
 
+        /* ===== CUSTOM CURSOR ===== */
+        * { cursor: none !important; }
+        #cursor-dot {
+            position: fixed;
+            width: 8px; height: 8px;
+            background: var(--accent-warm);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.08s ease, background 0.2s;
+            mix-blend-mode: multiply;
+            box-shadow: 0 0 10px var(--accent-warm), 0 0 20px rgba(212,163,115,0.4);
+        }
+        #cursor-ring {
+            position: fixed;
+            width: 28px; height: 28px;
+            border: 1.5px solid rgba(212,163,115,0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, border-color 0.3s;
+        }
+        #cursor-ring.hovering {
+            width: 44px; height: 44px;
+            border-color: var(--blue-ink);
+            background: rgba(59,89,152,0.06);
+        }
+        #cursor-trail-container {
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 9997;
+        }
+        .cursor-trail {
+            position: fixed;
+            width: 4px; height: 4px;
+            background: var(--accent-warm);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            animation: trailFade 0.6s forwards;
+        }
+        @keyframes trailFade {
+            0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+        }
+
+        /* ===== GLITCH NAME ===== */
+        .name {
+            position: relative;
+        }
+        .name.glitching::before,
+        .name.glitching::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0;
+            font-family: 'Caveat', cursive;
+            font-size: 1em;
+            font-weight: 700;
+            transform: rotate(-2deg);
+        }
+        .name.glitching::before {
+            color: #ff4d6d;
+            clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
+            animation: glitch1 0.3s steps(2) infinite;
+        }
+        .name.glitching::after {
+            color: #4af4ff;
+            clip-path: polygon(0 60%, 100% 60%, 100% 75%, 0 75%);
+            animation: glitch2 0.3s steps(2) infinite;
+        }
+        @keyframes glitch1 {
+            0% { transform: translate(-3px, 0) rotate(-2deg); }
+            50% { transform: translate(3px, 0) rotate(-2deg); }
+            100% { transform: translate(-1px, 0) rotate(-2deg); }
+        }
+        @keyframes glitch2 {
+            0% { transform: translate(3px, 0) rotate(-2deg); }
+            50% { transform: translate(-3px, 0) rotate(-2deg); }
+            100% { transform: translate(1px, 0) rotate(-2deg); }
+        }
+
+        /* ===== INK SPLASH ===== */
+        @keyframes inkSplash {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0.6; }
+            70% { opacity: 0.25; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+        .ink-splash {
+            position: absolute;
+            width: 80px; height: 80px;
+            background: radial-gradient(circle, rgba(59,89,152,0.35) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99;
+            animation: inkSplash 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        /* ===== COFFEE STAIN SHAKE REVEAL ===== */
+        .coffee-stain {
+            cursor: none !important;
+        }
+        .coffee-stain.shaking {
+            animation: stainShake 0.4s ease !important;
+        }
+        @keyframes stainShake {
+            0%,100% { transform: rotate(30deg) translate(0,0); }
+            20% { transform: rotate(35deg) translate(-4px, -4px); }
+            40% { transform: rotate(25deg) translate(4px, 2px); }
+            60% { transform: rotate(32deg) translate(-2px, 4px); }
+            80% { transform: rotate(28deg) translate(3px, -2px); }
+        }
+        .secret-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: rgba(253,251,247,0.95);
+            border: 1.5px dashed var(--blue-ink);
+            padding: 10px 22px;
+            font-family: 'Caveat', cursive;
+            font-size: 1.4em;
+            color: var(--blue-ink);
+            border-radius: 6px;
+            z-index: 9999;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s;
+            opacity: 0;
+            white-space: nowrap;
+        }
+        .secret-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* ===== KONAMI EASTER EGG ===== */
+        #konami-overlay {
+            position: fixed; inset: 0;
+            z-index: 99999;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        #konami-overlay.show {
+            opacity: 1;
+        }
+        .konami-text {
+            font-family: 'Caveat', cursive;
+            font-size: clamp(2em, 8vw, 4em);
+            color: #fdfbf7;
+            text-shadow: 0 0 30px var(--accent-warm), 2px 2px 0 rgba(0,0,0,0.3);
+            text-align: center;
+            padding: 20px;
+            animation: konamiPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes konamiPop {
+            0% { transform: scale(0) rotate(-10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        .konami-confetti {
+            position: absolute;
+            width: 10px; height: 10px;
+            border-radius: 2px;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ===== DOODLE TOOLTIP ===== */
+        .doodle {
+            cursor: none !important;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .doodle:hover {
+            transform: rotate(0deg) scale(1.3) !important;
+        }
+        .doodle::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            transform-origin: bottom center;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            white-space: nowrap;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.12);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            color: var(--ink);
+        }
+        .doodle:hover::after {
+            transform: translateX(-50%) scale(1);
+        }
+
+        /* ===== POLAROID SHAKE ON HOVER ===== */
+        .polaroid-box:hover {
+            animation: polaroidWobble 0.4s ease;
+        }
+        @keyframes polaroidWobble {
+            0%,100% { transform: rotate(2deg) scale(1.08); }
+            25% { transform: rotate(-2deg) scale(1.1); }
+            75% { transform: rotate(3deg) scale(1.08); }
+        }
+
+        /* ===== SOCIAL MAGNETIC AURA ===== */
+        .social-btn {
+            transition: color 0.2s, transform 0.15s ease-out;
+        }
+
+        /* ===== NAME UNDERLINE DRAW ===== */
+        .name::after {
+            width: 0%;
+            transition: width 1.2s 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .tilt-wrapper.show .name::after {
+            width: 120%;
+        }
+
+        /* ===== PAPER CORNER FOLD ===== */
+        .paper-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 0; height: 0;
+            border-style: solid;
+            border-width: 0 0 30px 30px;
+            border-color: transparent transparent rgba(210,200,185,0.8) transparent;
+            transition: border-width 0.3s ease;
+            z-index: 10;
+        }
+        .paper-card:hover::after {
+            border-width: 0 0 50px 50px;
+            border-color: transparent transparent rgba(180,165,145,0.9) transparent;
+        }
+
     </style>
 </head>
 <body>
@@ -573,6 +891,19 @@
     <video id="bg-video" class="video-bg" loop muted playsinline>
         <source src="video.mp4" type="video/mp4">
     </video>
+
+    <!-- Custom Cursor -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+    <div id="cursor-trail-container"></div>
+
+    <!-- Secret Toast -->
+    <div class="secret-toast" id="secret-toast">☕ oops, my bad~</div>
+
+    <!-- Konami Overlay -->
+    <div id="konami-overlay">
+        <div class="konami-text">⬆⬆⬇⬇⬅➡⬅➡ B A<br>you found me 🐾✨</div>
+    </div>
 
     <div id="dust-container"></div>
     <div id="leaves-container"></div>
@@ -589,28 +920,28 @@
     <div class="tilt-wrapper" id="tilt-zone">
         <div class="paper-card" id="tilt-card">
             
-            <div class="coffee-stain"></div>
+            <div class="coffee-stain" title="Oops, tumpah!"></div>
             <div class="tape tape-1"></div>
             <div class="tape tape-2"></div>
             
             <div class="card-inner">
                 
                 <div class="now-playing">🎵 music on</div>
-                <div class="doodle doodle-1">meow! 🐾</div>
-                <div class="doodle doodle-2">✨</div>
+                <div class="doodle doodle-1" data-tip="pls don't disturb 🐱">meow! 🐾</div>
+                <div class="doodle doodle-2" data-tip="vibes only ✨">✨</div>
 
-                <div class="polaroid-box">
+                <div class="polaroid-box" id="polaroid">
                     <img src="image.jpg" alt="mirza" class="avatar" onerror="this.src='https://i.ibb.co.com/b5gT9tsr/IMG-20260428-180252.jpg'">
                     <div class="polaroid-caption">that's me!</div>
                 </div>
 
-                <h1 class="name">mirza</h1>
+                <h1 class="name" data-text="mirza" id="name-el">mirza</h1>
 
-                <div class="bio-strip">
-                    > arch linux & hyprland enthusiast<br>
-                    > living in the cozy lo-fi space<br>
-                    > currently vibing playing valo<br>
-                    > <i class="fas fa-crosshairs"></i> <span class="valo-id">NAdriayan#Mirza</span>
+                <div class="bio-strip" id="bio-container">
+                    <div class="bio-line">> arch linux & hyprland enthusiast</div>
+                    <div class="bio-line">> living in the cozy lo-fi space</div>
+                    <div class="bio-line">> currently vibing playing valo</div>
+                    <div class="bio-line">> <i class="fas fa-crosshairs"></i> <span class="valo-id">NAdriayan#Mirza</span><span class="cursor" id="cursor"></span></div>
                 </div>
 
                 <div class="social-icons">
@@ -622,7 +953,7 @@
 
                 <div class="widget-container">
                     <div class="tape" style="width: 50px; height: 18px; top: -6px; left: 15px; transform: rotate(-5deg); backdrop-filter: blur(2px);"></div>
-                    <img src="https://discord.c99.nl/widget/theme-3/1089547617521913987.png" alt="Discord Status" class="discord-widget">
+                    <img src="https://discord.c99.nl/widget/theme-5/1089547617521913987.png" alt="Discord Status" class="discord-widget">
                 </div>
 
                 <div class="audio-player-widget">
@@ -646,25 +977,133 @@
 
     <script>
         const welcomeScreen = document.getElementById('welcome-screen');
-        const mainWrapper = document.getElementById('tilt-zone');
-        const bgMusic = document.getElementById('bg-music');
-        const bgVideo = document.getElementById('bg-video');
+        const mainWrapper   = document.getElementById('tilt-zone');
+        const bgMusic       = document.getElementById('bg-music');
+        const bgVideo       = document.getElementById('bg-video');
         const playToggleBtn = document.getElementById('play-toggle-btn');
-        const playIcon = document.getElementById('play-icon');
-        const visualizer = document.getElementById('visualizer');
+        const playIcon      = document.getElementById('play-icon');
+        const visualizer    = document.getElementById('visualizer');
+        const card          = document.getElementById('tilt-card');
+        const cursorEl      = document.getElementById('cursor');
 
+        // ===== CUSTOM CURSOR =====
+        const cursorDot    = document.getElementById('cursor-dot');
+        const cursorRing   = document.getElementById('cursor-ring');
+        const trailContainer = document.getElementById('cursor-trail-container');
+        let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            cursorDot.style.left = mouseX + 'px';
+            cursorDot.style.top  = mouseY + 'px';
+            if (Math.random() < 0.25) {
+                const t = document.createElement('div');
+                t.className = 'cursor-trail';
+                t.style.left = mouseX + 'px';
+                t.style.top  = mouseY + 'px';
+                trailContainer.appendChild(t);
+                setTimeout(() => t.remove(), 600);
+            }
+        });
+
+        (function animateRing() {
+            ringX += (mouseX - ringX) * 0.12;
+            ringY += (mouseY - ringY) * 0.12;
+            cursorRing.style.left = ringX + 'px';
+            cursorRing.style.top  = ringY + 'px';
+            requestAnimationFrame(animateRing);
+        })();
+
+        document.querySelectorAll('a, button, .social-btn, .polaroid-box, .doodle, .coffee-stain').forEach(el => {
+            el.addEventListener('mouseenter', () => cursorRing.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => cursorRing.classList.remove('hovering'));
+        });
+
+        // ===== TYPING EFFECT — FIXED =====
+        // Stores each line as an array of "segments": {type:'text'|'html', content:string}
+        // Text segments are typed char-by-char; HTML tags are inserted instantly.
+        // This avoids innerHTML += re-parsing which caused &gt; double-encoding.
+        function parseLineSegments(lineEl) {
+            const segments = [];
+            lineEl.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    // plain text — split into individual chars for typing
+                    segments.push({ type: 'text', content: node.textContent });
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    // HTML element — snapshot its outerHTML, insert whole
+                    segments.push({ type: 'html', content: node.outerHTML });
+                }
+            });
+            return segments;
+        }
+
+        function startTypingEffect() {
+            const lines = Array.from(document.querySelectorAll('.bio-line'));
+
+            // Snapshot all segments BEFORE clearing
+            const lineSegments = lines.map(line => {
+                const segs = parseLineSegments(line);
+                line.innerHTML = '';
+                line.style.opacity = '1';
+                line.style.transform = 'translateX(0)';
+                return segs;
+            });
+
+            let li = 0; // current line index
+
+            function typeLine(el, segments, done) {
+                let si = 0; // segment index
+
+                function nextSeg() {
+                    if (si >= segments.length) { done(); return; }
+                    const seg = segments[si++];
+
+                    if (seg.type === 'html') {
+                        // Insert full HTML node instantly then move on
+                        el.insertAdjacentHTML('beforeend', seg.content);
+                        nextSeg();
+                    } else {
+                        // Type text char by char using insertAdjacentText — NO re-parsing
+                        const chars = Array.from(seg.content); // proper unicode split
+                        let ci = 0;
+                        function typeChar() {
+                            if (ci >= chars.length) { nextSeg(); return; }
+                            el.insertAdjacentText('beforeend', chars[ci++]);
+                            setTimeout(typeChar, 32 + Math.random() * 22);
+                        }
+                        typeChar();
+                    }
+                }
+                nextSeg();
+            }
+
+            function nextLine() {
+                if (li >= lines.length) {
+                    cursorEl.classList.add('active');
+                    return;
+                }
+                const idx = li++;
+                const delay = idx === 0 ? 800 : 180;
+                setTimeout(() => typeLine(lines[idx], lineSegments[idx], nextLine), delay);
+            }
+
+            nextLine();
+        }
+
+        // ===== WELCOME ENTER =====
         welcomeScreen.addEventListener('click', () => {
             welcomeScreen.classList.add('fade-out');
             mainWrapper.classList.add('show');
-            
-            bgMusic.play().catch(e => console.log(e));
-            bgVideo.play().catch(e => console.log(e));
-            
+            bgMusic.play().catch(() => {});
+            bgVideo.play().catch(() => {});
             visualizer.classList.remove('paused');
             playIcon.className = 'fas fa-pause';
+            startTypingEffect();
         });
 
-        playToggleBtn.addEventListener('click', () => {
+        // ===== MUSIC TOGGLE =====
+        playToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (bgMusic.paused) {
                 bgMusic.play();
                 playIcon.className = 'fas fa-pause';
@@ -676,50 +1115,151 @@
             }
         });
 
+        // ===== DUST & LEAVES =====
         const dustContainer = document.getElementById('dust-container');
         for (let i = 0; i < 40; i++) {
-            let mote = document.createElement('div');
-            mote.classList.add('dust-mote');
-            mote.style.width = `${Math.random() * 3 + 1}px`;
-            mote.style.height = mote.style.width;
-            mote.style.left = `${Math.random() * 100}vw`;
-            mote.style.animationDelay = `${Math.random() * 10}s`;
-            mote.style.animationDuration = `${Math.random() * 15 + 10}s`;
-            dustContainer.appendChild(mote);
+            const m = document.createElement('div');
+            m.classList.add('dust-mote');
+            const s = Math.random() * 3 + 1 + 'px';
+            m.style.width = s; m.style.height = s;
+            m.style.left = Math.random() * 100 + 'vw';
+            m.style.animationDelay    = Math.random() * 10 + 's';
+            m.style.animationDuration = Math.random() * 15 + 10 + 's';
+            dustContainer.appendChild(m);
         }
 
         const leavesContainer = document.getElementById('leaves-container');
         for (let i = 0; i < 20; i++) {
-            let leaf = document.createElement('i');
-            leaf.className = `fas fa-leaf leaf`;
-            leaf.style.left = `${Math.random() * 100}vw`;
-            leaf.style.animationDuration = `${Math.random() * 10 + 10}s, ${Math.random() * 2 + 2}s`;
-            leaf.style.animationDelay = `${Math.random() * 10}s, ${Math.random() * 2}s`;
-            leaf.style.fontSize = `${Math.random() * 1 + 0.8}em`;
-            leaf.style.opacity = Math.random() * 0.5 + 0.2;
-            leavesContainer.appendChild(leaf);
+            const l = document.createElement('i');
+            l.className = 'fas fa-leaf leaf';
+            l.style.left = Math.random() * 100 + 'vw';
+            l.style.animationDuration = `${Math.random()*10+10}s, ${Math.random()*2+2}s`;
+            l.style.animationDelay    = `${Math.random()*10}s, ${Math.random()*2}s`;
+            l.style.fontSize  = Math.random() * 1 + 0.8 + 'em';
+            l.style.opacity   = Math.random() * 0.5 + 0.2;
+            leavesContainer.appendChild(l);
         }
 
-        const card = document.getElementById('tilt-card');
-        
+        // ===== 3D TILT =====
         mainWrapper.addEventListener('mousemove', (e) => {
-            if(!mainWrapper.classList.contains('show')) return;
-
-            const rect = mainWrapper.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = ((y - centerY) / 35) * -1; 
-            const rotateY = ((x - centerX) / 35);
-            
-            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            if (!mainWrapper.classList.contains('show')) return;
+            const r = mainWrapper.getBoundingClientRect();
+            const rx = ((e.clientY - r.top  - r.height/2) / 35) * -1;
+            const ry =  (e.clientX - r.left - r.width /2) / 35;
+            card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
         });
-
         mainWrapper.addEventListener('mouseleave', () => {
-            card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+            card.style.transform = 'rotateX(0deg) rotateY(0deg)';
         });
+
+        // ===== MAGNETIC SOCIAL BUTTONS =====
+        document.querySelectorAll('.social-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const r = btn.getBoundingClientRect();
+                const bx = (e.clientX - r.left - r.width /2) * 0.4;
+                const by = (e.clientY - r.top  - r.height/2) * 0.4;
+                btn.style.transform = `translate(${bx}px,${by}px) scale(1.15) rotate(8deg)`;
+            });
+            btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+        });
+
+        // ===== POLAROID FLASH — with wiggle sound illusion =====
+        const polaroid = document.getElementById('polaroid');
+        let polaroidClickCount = 0;
+        const polaroidCaptions = ["that's me!", "say cheese~ 📸", "hi there! 👋", "pls don't stare 😳", "meow 🐾"];
+        polaroid.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Camera flash
+            polaroid.classList.add('flash');
+            const flash = document.createElement('div');
+            flash.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:0.55;pointer-events:none;z-index:9999;transition:opacity 0.45s ease';
+            document.body.appendChild(flash);
+            setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 450); }, 50);
+            setTimeout(() => polaroid.classList.remove('flash'), 120);
+            // Cycle caption
+            polaroidClickCount++;
+            const cap = polaroid.querySelector('.polaroid-caption');
+            if (cap) {
+                cap.style.transition = 'opacity 0.2s';
+                cap.style.opacity = '0';
+                setTimeout(() => {
+                    cap.textContent = polaroidCaptions[polaroidClickCount % polaroidCaptions.length];
+                    cap.style.opacity = '1';
+                }, 200);
+            }
+        });
+
+        // ===== INK SPLASH + PAW =====
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('button, a, .widget-container, .polaroid-box, .coffee-stain')) return;
+            const r = card.getBoundingClientRect();
+            const x = e.clientX - r.left, y = e.clientY - r.top;
+
+            const splash = document.createElement('div');
+            splash.className = 'ink-splash';
+            splash.style.left = x + 'px'; splash.style.top = y + 'px';
+            card.appendChild(splash);
+            setTimeout(() => splash.remove(), 800);
+
+            const paw = document.createElement('i');
+            paw.className = 'fas fa-paw paw-print';
+            paw.style.left = (x - 10) + 'px'; paw.style.top = (y - 10) + 'px';
+            paw.style.setProperty('--rot', Math.random() * 60 - 30);
+            card.appendChild(paw);
+            setTimeout(() => paw.remove(), 1500);
+        });
+
+        // ===== GLITCH NAME =====
+        const nameEl = document.getElementById('name-el');
+        nameEl.addEventListener('mouseenter', () => nameEl.classList.add('glitching'));
+        nameEl.addEventListener('mouseleave',  () => nameEl.classList.remove('glitching'));
+
+        // ===== COFFEE STAIN SECRET =====
+        const coffeeStain  = document.querySelector('.coffee-stain');
+        const secretToast  = document.getElementById('secret-toast');
+        const coffeeMsgs   = ['☕ oops, my bad~','🤫 shhh... this is a secret','🐈 the cat knocked it over','😅 dont tell anyone','🫢 you clicked again??'];
+        let coffeeIdx = 0, toastTimer;
+        coffeeStain.addEventListener('click', (e) => {
+            e.stopPropagation();
+            coffeeStain.classList.remove('shaking');
+            void coffeeStain.offsetWidth;
+            coffeeStain.classList.add('shaking');
+            secretToast.textContent = coffeeMsgs[coffeeIdx++ % coffeeMsgs.length];
+            secretToast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => secretToast.classList.remove('show'), 2500);
+        });
+
+        // ===== KONAMI CODE =====
+        const konami = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+        let kPos = 0;
+        const konamiOverlay = document.getElementById('konami-overlay');
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konami[kPos]) { kPos++; if (kPos === konami.length) { kPos = 0; triggerKonami(); } }
+            else kPos = 0;
+        });
+
+        function triggerKonami() {
+            konamiOverlay.classList.add('show');
+            const cols = ['#d4a373','#3b5998','#ff4d6d','#4af4ff','#fdfbf7','#b5835a'];
+            for (let i = 0; i < 80; i++) {
+                const c = document.createElement('div');
+                c.className = 'konami-confetti';
+                c.style.left = Math.random()*100 + 'vw'; c.style.top = '-20px';
+                c.style.background = cols[Math.floor(Math.random()*cols.length)];
+                c.style.width  = (Math.random()*10+5) + 'px';
+                c.style.height = (Math.random()*10+5) + 'px';
+                c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                c.style.animationDuration = (Math.random()*2+2) + 's';
+                c.style.animationDelay    = Math.random()*0.8 + 's';
+                konamiOverlay.appendChild(c);
+            }
+            setTimeout(() => {
+                konamiOverlay.classList.remove('show');
+                setTimeout(() => konamiOverlay.querySelectorAll('.konami-confetti').forEach(c => c.remove()), 500);
+            }, 4000);
+        }
+
     </script>
 </body>
 </html>
