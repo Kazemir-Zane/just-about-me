@@ -188,7 +188,7 @@
         .avatar { width: 130px; height: 130px; object-fit: cover; border: 1px solid #eee; filter: sepia(0.3) contrast(1.1) saturate(0.8); transition: 0.3s; }
         .polaroid-box:hover .avatar { filter: sepia(0) contrast(1) saturate(1); }
         .polaroid-caption {
-            font-family: 'Caveat', cursive; font-size: 1.4em; color: var(--blue-ink); font-weight: bold;
+            font-family: 'Caveat', cursive; font-size: 1.6em; color: var(--blue-ink); font-weight: bold;
             position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); white-space: nowrap;
         }
 
@@ -274,8 +274,8 @@
         @keyframes pawFade { 0% { opacity: 0; transform: scale(0.5) rotate(calc(var(--rot) * 1deg)); } 20% { opacity: 0.5; transform: scale(1.2) rotate(calc(var(--rot) * 1deg)); } 100% { opacity: 0; transform: scale(0.8) rotate(calc(var(--rot) * 1deg)); } }
 
         .ink-splash {
-            position: absolute; width: 80px; height: 80px; background: radial-gradient(circle, rgba(59,89,152,0.35) 0%, transparent 70%);
-            border-radius: 50%; pointer-events: none; z-index: 99; animation: inkSplash 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            position: absolute; width: 80px; height: 80px; background: radial-gradient(circle, rgba(59,89,152,0.35) 0%, transparent 70%); border-radius: 50%;
+            pointer-events: none; z-index: 99; animation: inkSplash 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         @keyframes inkSplash { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0.6; } 70% { opacity: 0.25; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
 
@@ -306,19 +306,17 @@
             .tilt-wrapper { padding: 15px; } .paper-card { padding: 30px 20px; transform-style: flat; box-shadow: 0 8px 24px rgba(0,0,0,0.45); }
             .card-inner { transform: none; } .avatar { width: 100px; height: 100px; } .polaroid-box { padding: 8px 8px 30px 8px; }
             .bio-strip { font-size: 0.8em; padding: 8px 12px; } .social-btn { width: 40px; height: 40px; font-size: 1.2em; transition: color 0.2s; }
-            .name.glitching::before, .name.glitching::after { display: none; }
         }
-
     </style>
 </head>
 <body>
 
     <audio id="bg-music" loop><source src="lagu.mp3" type="audio/mpeg"></audio>
     <video id="bg-video" class="video-bg" loop muted playsinline><source src="video.mp4" type="video/mp4"></video>
-    <audio id="shutter-sfx"><source src="shutter.mp3" type="audio/mpeg"></audio>
 
     <div id="cursor-dot"></div>
     <div id="cursor-ring"></div>
+    <div id="cursor-trail-container"></div>
 
     <div class="secret-toast" id="secret-toast"></div>
     <div id="konami-overlay"><div class="konami-text">⬆⬆⬇⬇⬅➡⬅➡ B A<br>you found me 🐾✨</div></div>
@@ -384,22 +382,26 @@
 
     <script>
         const isMobile = window.matchMedia('(hover: none)').matches || window.innerWidth <= 480;
-
         const cursorDot = document.getElementById('cursor-dot');
         const cursorRing = document.getElementById('cursor-ring');
+        const trailContainer = document.getElementById('cursor-trail-container');
         
         if (!isMobile) {
             let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2;
             let ringX = mouseX, ringY = mouseY;
             document.addEventListener('mousemove', (e) => {
                 mouseX = e.clientX; mouseY = e.clientY;
-                cursorDot.style.left = mouseX + 'px';
-                cursorDot.style.top  = mouseY + 'px';
+                cursorDot.style.left = mouseX + 'px'; cursorDot.style.top = mouseY + 'px';
+                if (Math.random() < 0.25) {
+                    const t = document.createElement('div'); t.className = 'cursor-trail';
+                    t.style.left = mouseX + 'px'; t.style.top = mouseY + 'px';
+                    trailContainer.appendChild(t); setTimeout(() => t.remove(), 600);
+                }
             }, { passive: true });
 
             function animateRing() {
                 ringX += (mouseX - ringX) * 0.15; ringY += (mouseY - ringY) * 0.15;
-                cursorRing.style.left = ringX + 'px'; cursorRing.style.top  = ringY + 'px';
+                cursorRing.style.left = ringX + 'px'; cursorRing.style.top = ringY + 'px';
                 requestAnimationFrame(animateRing);
             }
             animateRing();
@@ -411,11 +413,11 @@
         }
 
         const welcomeScreen = document.getElementById('welcome-screen');
-        const mainWrapper   = document.getElementById('tilt-zone');
-        const card          = document.getElementById('tilt-card');
-        const bgMusic       = document.getElementById('bg-music');
-        const bgVideo       = document.getElementById('bg-video');
-        const shutterSfx    = document.getElementById('shutter-sfx');
+        const mainWrapper = document.getElementById('tilt-zone');
+        const card = document.getElementById('tilt-card');
+        const bgMusic = document.getElementById('bg-music');
+        const bgVideo = document.getElementById('bg-video');
+        const shutterSfx = new Audio('shutter.mp3');
 
         function parseLineSegments(lineEl) {
             const segments = [];
@@ -480,7 +482,7 @@
         });
 
         const DUST_COUNT = isMobile ? 12 : 35;
-        const LEAVES_COUNT = isMobile ? 6  : 16;
+        const LEAVES_COUNT = isMobile ? 6 : 16;
         const dustContainer = document.getElementById('dust-container');
         const dustFrag = document.createDocumentFragment();
         for (let i = 0; i < DUST_COUNT; i++) {
@@ -509,18 +511,23 @@
                 if (tiltRAF) return;
                 tiltRAF = requestAnimationFrame(() => {
                     const r = mainWrapper.getBoundingClientRect();
-                    const rx = ((e.clientY - r.top  - r.height/2) / 35) * -1;
-                    const ry =  (e.clientX - r.left - r.width /2) / 35;
+                    const rx = ((e.clientY - r.top - r.height/2) / 35) * -1;
+                    const ry = (e.clientX - r.left - r.width /2) / 35;
                     card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
                     tiltRAF = null;
                 });
             }, { passive: true });
             mainWrapper.addEventListener('mouseleave', () => card.style.transform = 'rotateX(0deg) rotateY(0deg)');
-
-            const nameEl = document.getElementById('name-el');
-            nameEl.addEventListener('mouseenter', () => nameEl.classList.add('glitching'));
-            nameEl.addEventListener('mouseleave',  () => nameEl.classList.remove('glitching'));
         }
+
+        const nameEl = document.getElementById('name-el');
+        nameEl.addEventListener('mouseenter', () => nameEl.classList.add('glitching'));
+        nameEl.addEventListener('mouseleave', () => nameEl.classList.remove('glitching'));
+        nameEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            nameEl.classList.add('glitching');
+            setTimeout(() => nameEl.classList.remove('glitching'), 1000);
+        });
 
         const polaroid = document.getElementById('polaroid');
         let polaroidClickCount = 0;
@@ -596,7 +603,7 @@
                 const c = document.createElement('div'); c.className = 'konami-confetti';
                 c.style.left = Math.random()*100 + 'vw'; c.style.top = '-20px';
                 c.style.background = cols[Math.floor(Math.random()*cols.length)];
-                c.style.width  = (Math.random()*10+5) + 'px'; c.style.height = (Math.random()*10+5) + 'px';
+                c.style.width = (Math.random()*10+5) + 'px'; c.style.height = (Math.random()*10+5) + 'px';
                 c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
                 c.style.animationDuration = (Math.random()*2+2) + 's'; c.style.animationDelay = Math.random()*0.8 + 's';
                 frag.appendChild(c);
