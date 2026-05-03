@@ -55,20 +55,7 @@
             inset: 0;
             z-index: -5;
             pointer-events: none;
-        }
-
-        .dust-mote {
-            position: absolute;
-            background: var(--accent-warm);
-            border-radius: 50%;
-            opacity: 0;
-            animation: driftUp linear infinite;
-        }
-
-        @keyframes driftUp {
-            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
-            50% { opacity: 0.5; box-shadow: 0 0 10px var(--accent-warm); }
-            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+            contain: layout style paint;
         }
 
         #leaves-container {
@@ -77,14 +64,28 @@
             z-index: 50; 
             pointer-events: none;
             overflow: hidden;
+            contain: layout style paint;
         }
 
         .leaf {
             position: absolute;
             top: -10%;
             color: #b5835a;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+            will-change: transform, top;
             animation: leafFall linear infinite, leafSway 3s ease-in-out infinite alternate;
+        }
+            position: absolute;
+            background: var(--accent-warm);
+            border-radius: 50%;
+            opacity: 0;
+            will-change: transform, opacity;
+            animation: driftUp linear infinite;
+        }
+
+        @keyframes driftUp {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            50% { opacity: 0.4; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
         }
 
         @keyframes leafFall {
@@ -99,20 +100,25 @@
 
         #welcome-screen {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 12, 10, 0.5);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 12, 10, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             z-index: 100;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 1.5s ease;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (hover: none) {
+            #welcome-screen {
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
         }
 
         #welcome-screen.fade-out {
@@ -126,13 +132,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 1s ease;
         }
 
         #welcome-screen.fade-out .welcome-content {
-            transform: scale(1.1) translateY(-20px);
-            letter-spacing: 8px;
-            filter: blur(10px);
+            transform: scale(1.05) translateY(-15px);
             opacity: 0;
         }
 
@@ -246,10 +250,8 @@
 
         .tape {
             position: absolute;
-            background: var(--tape);
+            background: rgba(235, 228, 205, 0.82);
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
             z-index: 5;
         }
 
@@ -635,9 +637,15 @@
             }
         }
 
-        /* ===== CUSTOM CURSOR ===== */
-        * { cursor: none !important; }
+        /* ===== CUSTOM CURSOR (desktop only) ===== */
+        @media (hover: hover) {
+            * { cursor: none !important; }
+            #cursor-dot {
+                display: block;
+            }
+        }
         #cursor-dot {
+            display: none;
             position: fixed;
             width: 8px; height: 8px;
             background: var(--accent-warm);
@@ -645,42 +653,8 @@
             pointer-events: none;
             z-index: 9999;
             transform: translate(-50%, -50%);
-            transition: transform 0.08s ease, background 0.2s;
-            mix-blend-mode: multiply;
-            box-shadow: 0 0 10px var(--accent-warm), 0 0 20px rgba(212,163,115,0.4);
-        }
-        #cursor-ring {
-            position: fixed;
-            width: 28px; height: 28px;
-            border: 1.5px solid rgba(212,163,115,0.6);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9998;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, border-color 0.3s;
-        }
-        #cursor-ring.hovering {
-            width: 44px; height: 44px;
-            border-color: var(--blue-ink);
-            background: rgba(59,89,152,0.06);
-        }
-        #cursor-trail-container {
-            position: fixed; inset: 0;
-            pointer-events: none; z-index: 9997;
-        }
-        .cursor-trail {
-            position: fixed;
-            width: 4px; height: 4px;
-            background: var(--accent-warm);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            opacity: 0;
-            animation: trailFade 0.6s forwards;
-        }
-        @keyframes trailFade {
-            0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            will-change: left, top;
+            box-shadow: 0 0 8px var(--accent-warm);
         }
 
         /* ===== GLITCH NAME ===== */
@@ -880,6 +854,26 @@
             border-color: transparent transparent rgba(180,165,145,0.9) transparent;
         }
 
+        /* ===== MOBILE OPTIMIZATIONS ===== */
+        @media (hover: none), (max-width: 480px) {
+            /* Disable 3D tilt on touch — saves a huge compositor layer */
+            .paper-card {
+                transform-style: flat;
+            }
+            .card-inner {
+                transform: none;
+            }
+            /* Simpler box shadow */
+            .paper-card {
+                box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+            }
+            /* No glitch on mobile - it's hover-only anyway */
+            .name.glitching::before,
+            .name.glitching::after { display: none; }
+            /* Reduce social button transitions */
+            .social-btn { transition: color 0.2s; }
+        }
+
     </style>
 </head>
 <body>
@@ -892,10 +886,8 @@
         <source src="video.mp4" type="video/mp4">
     </video>
 
-    <!-- Custom Cursor -->
+    <!-- Custom Cursor (desktop only) -->
     <div id="cursor-dot"></div>
-    <div id="cursor-ring"></div>
-    <div id="cursor-trail-container"></div>
 
     <!-- Secret Toast -->
     <div class="secret-toast" id="secret-toast">☕ oops, my bad~</div>
@@ -952,7 +944,7 @@
                 </div>
 
                 <div class="widget-container">
-                    <div class="tape" style="width: 50px; height: 18px; top: -6px; left: 15px; transform: rotate(-5deg); backdrop-filter: blur(2px);"></div>
+                    <div class="tape" style="width: 50px; height: 18px; top: -6px; left: 15px; transform: rotate(-5deg);"></div>
                     <img src="https://discord.c99.nl/widget/theme-5/1089547617521913987.png" alt="Discord Status" class="discord-widget">
                 </div>
 
@@ -986,51 +978,27 @@
         const card          = document.getElementById('tilt-card');
         const cursorEl      = document.getElementById('cursor');
 
-        // ===== CUSTOM CURSOR =====
-        const cursorDot    = document.getElementById('cursor-dot');
-        const cursorRing   = document.getElementById('cursor-ring');
-        const trailContainer = document.getElementById('cursor-trail-container');
-        let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+        // Detect touch/mobile
+        const isMobile = window.matchMedia('(hover: none)').matches || window.innerWidth <= 480;
 
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX; mouseY = e.clientY;
-            cursorDot.style.left = mouseX + 'px';
-            cursorDot.style.top  = mouseY + 'px';
-            if (Math.random() < 0.25) {
-                const t = document.createElement('div');
-                t.className = 'cursor-trail';
-                t.style.left = mouseX + 'px';
-                t.style.top  = mouseY + 'px';
-                trailContainer.appendChild(t);
-                setTimeout(() => t.remove(), 600);
-            }
-        });
+        // ===== CUSTOM CURSOR — desktop only =====
+        const cursorDot = document.getElementById('cursor-dot');
+        if (!isMobile) {
+            let mouseX = 0, mouseY = 0;
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX; mouseY = e.clientY;
+                cursorDot.style.left = mouseX + 'px';
+                cursorDot.style.top  = mouseY + 'px';
+            }, { passive: true });
+        }
 
-        (function animateRing() {
-            ringX += (mouseX - ringX) * 0.12;
-            ringY += (mouseY - ringY) * 0.12;
-            cursorRing.style.left = ringX + 'px';
-            cursorRing.style.top  = ringY + 'px';
-            requestAnimationFrame(animateRing);
-        })();
-
-        document.querySelectorAll('a, button, .social-btn, .polaroid-box, .doodle, .coffee-stain').forEach(el => {
-            el.addEventListener('mouseenter', () => cursorRing.classList.add('hovering'));
-            el.addEventListener('mouseleave', () => cursorRing.classList.remove('hovering'));
-        });
-
-        // ===== TYPING EFFECT — FIXED =====
-        // Stores each line as an array of "segments": {type:'text'|'html', content:string}
-        // Text segments are typed char-by-char; HTML tags are inserted instantly.
-        // This avoids innerHTML += re-parsing which caused &gt; double-encoding.
+        // ===== TYPING EFFECT — fixed, no &gt; bugs =====
         function parseLineSegments(lineEl) {
             const segments = [];
             lineEl.childNodes.forEach(node => {
                 if (node.nodeType === Node.TEXT_NODE) {
-                    // plain text — split into individual chars for typing
                     segments.push({ type: 'text', content: node.textContent });
                 } else if (node.nodeType === Node.ELEMENT_NODE) {
-                    // HTML element — snapshot its outerHTML, insert whole
                     segments.push({ type: 'html', content: node.outerHTML });
                 }
             });
@@ -1039,8 +1007,6 @@
 
         function startTypingEffect() {
             const lines = Array.from(document.querySelectorAll('.bio-line'));
-
-            // Snapshot all segments BEFORE clearing
             const lineSegments = lines.map(line => {
                 const segs = parseLineSegments(line);
                 line.innerHTML = '';
@@ -1049,22 +1015,18 @@
                 return segs;
             });
 
-            let li = 0; // current line index
+            let li = 0;
 
             function typeLine(el, segments, done) {
-                let si = 0; // segment index
-
+                let si = 0;
                 function nextSeg() {
                     if (si >= segments.length) { done(); return; }
                     const seg = segments[si++];
-
                     if (seg.type === 'html') {
-                        // Insert full HTML node instantly then move on
                         el.insertAdjacentHTML('beforeend', seg.content);
                         nextSeg();
                     } else {
-                        // Type text char by char using insertAdjacentText — NO re-parsing
-                        const chars = Array.from(seg.content); // proper unicode split
+                        const chars = Array.from(seg.content);
                         let ci = 0;
                         function typeChar() {
                             if (ci >= chars.length) { nextSeg(); return; }
@@ -1078,15 +1040,10 @@
             }
 
             function nextLine() {
-                if (li >= lines.length) {
-                    cursorEl.classList.add('active');
-                    return;
-                }
+                if (li >= lines.length) { cursorEl.classList.add('active'); return; }
                 const idx = li++;
-                const delay = idx === 0 ? 800 : 180;
-                setTimeout(() => typeLine(lines[idx], lineSegments[idx], nextLine), delay);
+                setTimeout(() => typeLine(lines[idx], lineSegments[idx], nextLine), idx === 0 ? 800 : 180);
             }
-
             nextLine();
         }
 
@@ -1099,7 +1056,7 @@
             visualizer.classList.remove('paused');
             playIcon.className = 'fas fa-pause';
             startTypingEffect();
-        });
+        }, { once: true });
 
         // ===== MUSIC TOGGLE =====
         playToggleBtn.addEventListener('click', (e) => {
@@ -1115,9 +1072,13 @@
             }
         });
 
-        // ===== DUST & LEAVES =====
+        // ===== PARTICLES — fewer on mobile =====
+        const DUST_COUNT   = isMobile ? 12 : 35;
+        const LEAVES_COUNT = isMobile ? 6  : 16;
+
         const dustContainer = document.getElementById('dust-container');
-        for (let i = 0; i < 40; i++) {
+        const dustFrag = document.createDocumentFragment();
+        for (let i = 0; i < DUST_COUNT; i++) {
             const m = document.createElement('div');
             m.classList.add('dust-mote');
             const s = Math.random() * 3 + 1 + 'px';
@@ -1125,11 +1086,13 @@
             m.style.left = Math.random() * 100 + 'vw';
             m.style.animationDelay    = Math.random() * 10 + 's';
             m.style.animationDuration = Math.random() * 15 + 10 + 's';
-            dustContainer.appendChild(m);
+            dustFrag.appendChild(m);
         }
+        dustContainer.appendChild(dustFrag);
 
         const leavesContainer = document.getElementById('leaves-container');
-        for (let i = 0; i < 20; i++) {
+        const leafFrag = document.createDocumentFragment();
+        for (let i = 0; i < LEAVES_COUNT; i++) {
             const l = document.createElement('i');
             l.className = 'fas fa-leaf leaf';
             l.style.left = Math.random() * 100 + 'vw';
@@ -1137,44 +1100,57 @@
             l.style.animationDelay    = `${Math.random()*10}s, ${Math.random()*2}s`;
             l.style.fontSize  = Math.random() * 1 + 0.8 + 'em';
             l.style.opacity   = Math.random() * 0.5 + 0.2;
-            leavesContainer.appendChild(l);
+            leafFrag.appendChild(l);
+        }
+        leavesContainer.appendChild(leafFrag);
+
+        // ===== 3D TILT — desktop only, RAF-throttled =====
+        if (!isMobile) {
+            let tiltRAF = null;
+            mainWrapper.addEventListener('mousemove', (e) => {
+                if (!mainWrapper.classList.contains('show')) return;
+                if (tiltRAF) return; // throttle to one frame
+                tiltRAF = requestAnimationFrame(() => {
+                    const r = mainWrapper.getBoundingClientRect();
+                    const rx = ((e.clientY - r.top  - r.height/2) / 35) * -1;
+                    const ry =  (e.clientX - r.left - r.width /2) / 35;
+                    card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+                    tiltRAF = null;
+                });
+            }, { passive: true });
+            mainWrapper.addEventListener('mouseleave', () => {
+                card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            });
+
+            // ===== MAGNETIC SOCIAL BUTTONS — desktop only =====
+            document.querySelectorAll('.social-btn').forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const r = btn.getBoundingClientRect();
+                    const bx = (e.clientX - r.left - r.width /2) * 0.4;
+                    const by = (e.clientY - r.top  - r.height/2) * 0.4;
+                    btn.style.transform = `translate(${bx}px,${by}px) scale(1.15) rotate(8deg)`;
+                }, { passive: true });
+                btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+            });
+
+            // ===== GLITCH NAME — desktop only =====
+            const nameEl = document.getElementById('name-el');
+            nameEl.addEventListener('mouseenter', () => nameEl.classList.add('glitching'));
+            nameEl.addEventListener('mouseleave',  () => nameEl.classList.remove('glitching'));
         }
 
-        // ===== 3D TILT =====
-        mainWrapper.addEventListener('mousemove', (e) => {
-            if (!mainWrapper.classList.contains('show')) return;
-            const r = mainWrapper.getBoundingClientRect();
-            const rx = ((e.clientY - r.top  - r.height/2) / 35) * -1;
-            const ry =  (e.clientX - r.left - r.width /2) / 35;
-            card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-        });
-        mainWrapper.addEventListener('mouseleave', () => {
-            card.style.transform = 'rotateX(0deg) rotateY(0deg)';
-        });
-
-        // ===== MAGNETIC SOCIAL BUTTONS =====
-        document.querySelectorAll('.social-btn').forEach(btn => {
-            btn.addEventListener('mousemove', (e) => {
-                const r = btn.getBoundingClientRect();
-                const bx = (e.clientX - r.left - r.width /2) * 0.4;
-                const by = (e.clientY - r.top  - r.height/2) * 0.4;
-                btn.style.transform = `translate(${bx}px,${by}px) scale(1.15) rotate(8deg)`;
-            });
-            btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
-        });
-
-        // ===== POLAROID FLASH — with wiggle sound illusion =====
+        // ===== POLAROID FLASH =====
         const polaroid = document.getElementById('polaroid');
         let polaroidClickCount = 0;
         const polaroidCaptions = ["that's me!", "say cheese~ 📸", "hi there! 👋", "pls don't stare 😳", "meow 🐾"];
         polaroid.addEventListener('click', (e) => {
             e.stopPropagation();
-            // Camera flash
             polaroid.classList.add('flash');
+            // Screen flash — lighter on mobile
             const flash = document.createElement('div');
-            flash.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:0.55;pointer-events:none;z-index:9999;transition:opacity 0.45s ease';
+            flash.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:' + (isMobile ? '0.35' : '0.55') + ';pointer-events:none;z-index:9999;transition:opacity 0.4s ease';
             document.body.appendChild(flash);
-            setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 450); }, 50);
+            setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 400); }, 50);
             setTimeout(() => polaroid.classList.remove('flash'), 120);
             // Cycle caption
             polaroidClickCount++;
@@ -1182,18 +1158,16 @@
             if (cap) {
                 cap.style.transition = 'opacity 0.2s';
                 cap.style.opacity = '0';
-                setTimeout(() => {
-                    cap.textContent = polaroidCaptions[polaroidClickCount % polaroidCaptions.length];
-                    cap.style.opacity = '1';
-                }, 200);
+                setTimeout(() => { cap.textContent = polaroidCaptions[polaroidClickCount % polaroidCaptions.length]; cap.style.opacity = '1'; }, 200);
             }
         });
 
-        // ===== INK SPLASH + PAW =====
-        card.addEventListener('click', (e) => {
-            if (e.target.closest('button, a, .widget-container, .polaroid-box, .coffee-stain')) return;
+        // ===== INK SPLASH + PAW — touch & click =====
+        function spawnSplash(clientX, clientY) {
             const r = card.getBoundingClientRect();
-            const x = e.clientX - r.left, y = e.clientY - r.top;
+            const x = clientX - r.left, y = clientY - r.top;
+            // bounds check
+            if (x < 0 || y < 0 || x > r.width || y > r.height) return;
 
             const splash = document.createElement('div');
             splash.className = 'ink-splash';
@@ -1207,12 +1181,21 @@
             paw.style.setProperty('--rot', Math.random() * 60 - 30);
             card.appendChild(paw);
             setTimeout(() => paw.remove(), 1500);
+        }
+
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('button, a, .widget-container, .polaroid-box, .coffee-stain')) return;
+            spawnSplash(e.clientX, e.clientY);
         });
 
-        // ===== GLITCH NAME =====
-        const nameEl = document.getElementById('name-el');
-        nameEl.addEventListener('mouseenter', () => nameEl.classList.add('glitching'));
-        nameEl.addEventListener('mouseleave',  () => nameEl.classList.remove('glitching'));
+        // Touch tap support for mobile
+        if (isMobile) {
+            card.addEventListener('touchend', (e) => {
+                if (e.target.closest('button, a, .widget-container, .polaroid-box, .coffee-stain')) return;
+                const t = e.changedTouches[0];
+                spawnSplash(t.clientX, t.clientY);
+            }, { passive: true });
+        }
 
         // ===== COFFEE STAIN SECRET =====
         const coffeeStain  = document.querySelector('.coffee-stain');
@@ -1242,7 +1225,9 @@
         function triggerKonami() {
             konamiOverlay.classList.add('show');
             const cols = ['#d4a373','#3b5998','#ff4d6d','#4af4ff','#fdfbf7','#b5835a'];
-            for (let i = 0; i < 80; i++) {
+            const frag = document.createDocumentFragment();
+            const count = isMobile ? 40 : 80;
+            for (let i = 0; i < count; i++) {
                 const c = document.createElement('div');
                 c.className = 'konami-confetti';
                 c.style.left = Math.random()*100 + 'vw'; c.style.top = '-20px';
@@ -1252,8 +1237,9 @@
                 c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
                 c.style.animationDuration = (Math.random()*2+2) + 's';
                 c.style.animationDelay    = Math.random()*0.8 + 's';
-                konamiOverlay.appendChild(c);
+                frag.appendChild(c);
             }
+            konamiOverlay.appendChild(frag);
             setTimeout(() => {
                 konamiOverlay.classList.remove('show');
                 setTimeout(() => konamiOverlay.querySelectorAll('.konami-confetti').forEach(c => c.remove()), 500);
