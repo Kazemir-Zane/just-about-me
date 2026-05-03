@@ -187,7 +187,7 @@
             margin-bottom: 25px; transform: rotate(-3deg); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative; overflow: visible;
         }
-        /* Flash overlay only covers the photo area */
+        
         .polaroid-box .flash-overlay {
             content: ''; position: absolute; top: 0; left: 0; right: 0;
             background: #fff; z-index: 10;
@@ -258,7 +258,6 @@
             100% { transform: translate(var(--sx), var(--sy)) scale(1) rotate(var(--sr)); opacity: 0; }
         }
 
-        /* Ripple click effect on bio strip */
         .bio-strip { overflow: hidden; }
         .bio-ripple {
             position: absolute; width: 100px; height: 100px; border-radius: 50%;
@@ -269,7 +268,6 @@
             to { transform: translate(-50%, -50%) scale(3); opacity: 0; }
         }
 
-        /* Bounce animation for doodles on click */
         .doodle.bounce { animation: doodleBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) !important; }
         @keyframes doodleBounce {
             0% { transform: rotate(0deg) scale(1); }
@@ -278,7 +276,6 @@
             100% { transform: rotate(0deg) scale(1.3); }
         }
 
-        /* Scroll indicator */
         .scroll-hint {
             position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
             font-family: 'Caveat', cursive; font-size: 0.85em; color: rgba(253,251,247,0.5);
@@ -294,7 +291,6 @@
         .widget-container:hover { transform: rotate(0deg) scale(1.03); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
         .discord-widget { width: 100%; border-radius: 8px; filter: sepia(0.2) contrast(0.95); }
 
-        /* ── Paper Audio Player ── */
         .audio-player-widget {
             width: 100%; position: relative; transform: rotate(-1deg); transition: transform 0.3s ease;
             background: rgba(253, 251, 247, 0.6);
@@ -304,7 +300,6 @@
         }
         .audio-player-widget:hover { transform: rotate(0deg) scale(1.015); background: rgba(253,251,247,0.92); border-color: var(--blue-ink); }
 
-        /* tape decoration on player */
         .audio-player-widget::before {
             content: ''; position: absolute; top: -9px; left: 30px;
             width: 60px; height: 16px; background: rgba(235,228,205,0.85);
@@ -335,7 +330,6 @@
         .visualizer.paused .bar { animation-play-state: paused; transform: scaleY(0.25); }
         @keyframes bounce { 0%, 100% { transform: scaleY(0.3); opacity: 0.6; } 50% { transform: scaleY(1); opacity: 1; } }
 
-        /* Seek bar row */
         .player-seek-row { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
         .time-label {
             font-family: 'Caveat', cursive; font-size: 0.82em; color: rgba(44,47,51,0.55);
@@ -346,7 +340,7 @@
             border-radius: 2px; position: relative; cursor: pointer;
             border-bottom: 1px solid rgba(44,47,51,0.08);
         }
-        /* Pencil-sketch underline feel */
+        
         .seek-track::after {
             content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
             height: 1px; background: rgba(44,47,51,0.07); border-radius: 1px;
@@ -363,14 +357,13 @@
             transition: transform 0.15s; pointer-events: none;
         }
         .seek-track:hover .seek-thumb { transform: translateY(-50%) scale(1.3); }
-        /* Invisible full-width range input layered on top */
+        
         .seek-input {
             position: absolute; inset: -6px 0; width: 100%; opacity: 0;
             cursor: pointer; height: 16px; margin: 0;
             -webkit-appearance: none; appearance: none;
         }
 
-        /* Volume row */
         .player-vol-row { display: flex; align-items: center; gap: 8px; }
         .vol-icon { font-size: 0.75em; color: rgba(44,47,51,0.5); flex-shrink: 0; width: 14px; text-align: center; }
         .vol-track {
@@ -455,6 +448,131 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
         }
 
+        .tab-bar {
+            display: flex; gap: 0; margin-bottom: -2px;
+            position: relative; z-index: 3; padding: 0 4px;
+        }
+        .tab-btn {
+            font-family: 'Caveat', cursive; font-size: 1em; font-weight: 700;
+            background: rgba(240,236,225,0.7); border: 1.5px solid rgba(44,47,51,0.18);
+            border-bottom: none; border-radius: 6px 6px 0 0;
+            padding: 6px 13px 8px; color: rgba(44,47,51,0.5);
+            cursor: pointer; transition: all 0.2s ease;
+            position: relative; margin-right: 3px;
+            transform: translateY(2px);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .tab-btn:hover { color: var(--ink); background: rgba(250,247,240,0.9); transform: translateY(0px); }
+        .tab-btn.active {
+            background: var(--paper-bg); color: var(--blue-ink);
+            transform: translateY(0px); z-index: 4;
+            box-shadow: 0 -2px 6px rgba(0,0,0,0.06);
+            border-color: rgba(44,47,51,0.22);
+        }
+        .tab-btn .tab-icon { margin-right: 4px; font-size: 0.85em; }
+
+        .tab-content-area {
+            width: 100%; max-height: 420px; overflow-y: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: thin; scrollbar-color: rgba(212,163,115,0.4) transparent;
+            border-top: 1.5px solid rgba(44,47,51,0.15);
+            padding-top: 2px;
+        }
+        .tab-content-area::-webkit-scrollbar { width: 4px; }
+        .tab-content-area::-webkit-scrollbar-thumb { background: rgba(212,163,115,0.4); border-radius: 2px; }
+
+        .tab-panel { display: none; animation: tabFadeIn 0.3s ease; }
+        .tab-panel.active { display: block; }
+        @keyframes tabFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .music-tab-header {
+            font-family: 'Caveat', cursive; font-size: 1em; color: rgba(44,47,51,0.4);
+            text-align: center; padding: 10px 0 6px; letter-spacing: 1px;
+            border-bottom: 1px dashed rgba(44,47,51,0.12); margin-bottom: 8px;
+        }
+        .music-list { display: flex; flex-direction: column; gap: 2px; padding: 4px 2px; }
+        .music-item {
+            display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+            border-radius: 4px; cursor: pointer; transition: background 0.18s, transform 0.15s;
+            position: relative;
+        }
+        .music-item:hover { background: rgba(59,89,152,0.07); transform: translateX(3px); }
+        .music-item.playing { background: rgba(59,89,152,0.1); }
+        .music-num {
+            font-family: 'Caveat', cursive; font-size: 0.85em; color: rgba(44,47,51,0.35);
+            width: 18px; text-align: center; flex-shrink: 0;
+        }
+        .music-item.playing .music-num { display: none; }
+        .music-mini-viz { display: none; gap: 1.5px; align-items: flex-end; height: 12px; width: 18px; flex-shrink: 0; }
+        .music-item.playing .music-mini-viz { display: flex; }
+        .music-mini-viz .mbar { width: 2.5px; background: var(--blue-ink); border-radius: 1px; animation: bounce 0.8s ease-in-out infinite; transform-origin: bottom; }
+        .music-mini-viz .mbar:nth-child(2) { animation-delay: 0.15s; }
+        .music-mini-viz .mbar:nth-child(3) { animation-delay: 0.3s; }
+        .music-info { flex: 1; min-width: 0; }
+        .music-title { font-family: 'Caveat', cursive; font-size: 1.1em; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+        .music-item.playing .music-title { color: var(--blue-ink); }
+        .music-artist { font-family: 'Caveat', cursive; font-size: 0.82em; color: rgba(44,47,51,0.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .music-heart { font-size: 0.75em; color: rgba(44,47,51,0.2); flex-shrink: 0; transition: color 0.2s, transform 0.2s; }
+        .music-item:hover .music-heart { color: #e06c75; transform: scale(1.2); }
+
+        .games-header {
+            font-family: 'Caveat', cursive; font-size: 0.9em; color: rgba(44,47,51,0.35);
+            text-align: center; padding: 10px 0 6px; letter-spacing: 1px;
+            border-bottom: 1px dashed rgba(44,47,51,0.12); margin-bottom: 10px;
+        }
+        .games-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 4px 4px 10px;
+        }
+        .game-card {
+            background: rgba(255,255,255,0.5); border: 1px solid rgba(44,47,51,0.1);
+            border-radius: 6px; padding: 10px 12px;
+            display: flex; align-items: center; gap: 8px;
+            cursor: default; transition: all 0.2s ease;
+            position: relative; overflow: hidden;
+        }
+        .game-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .game-card:hover { transform: translateY(-2px) rotate(-0.5deg); box-shadow: 2px 4px 12px rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); }
+        .game-icon { font-size: 1.4em; flex-shrink: 0; }
+        .game-info { min-width: 0; }
+        .game-name { font-family: 'Caveat', cursive; font-size: 1em; font-weight: 700; color: var(--ink); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .game-tag { font-family: 'Caveat', cursive; font-size: 0.72em; color: rgba(44,47,51,0.4); }
+        .game-fav-badge {
+            position: absolute; top: 4px; right: 5px;
+            font-size: 0.6em; color: var(--accent-warm); opacity: 0.7;
+        }
+
+        .about-section { padding: 10px 4px 14px; }
+        .about-note {
+            background: rgba(255,255,255,0.6); border: 1px solid rgba(44,47,51,0.1);
+            border-radius: 255px 8px 225px 8px / 8px 225px 8px 255px;
+            padding: 10px 14px; margin-bottom: 10px;
+            font-size: 0.85em; line-height: 1.7; position: relative;
+        }
+        .about-label {
+            font-family: 'Caveat', cursive; font-size: 1em; color: var(--blue-ink);
+            font-weight: 700; display: block; margin-bottom: 3px;
+        }
+        .about-tag {
+            display: inline-block; font-family: 'Caveat', cursive; font-size: 0.9em;
+            background: rgba(59,89,152,0.08); border: 1px solid rgba(59,89,152,0.2);
+            border-radius: 20px; padding: 2px 10px; margin: 2px 2px 0;
+            color: var(--ink); transition: background 0.2s, transform 0.15s;
+        }
+        .about-tag:hover { background: rgba(59,89,152,0.15); transform: translateY(-1px); }
+        .about-stamp {
+            font-family: 'Caveat', cursive; font-size: 0.8em; color: rgba(44,47,51,0.25);
+            text-align: right; padding-right: 4px; margin-top: 4px; font-style: italic;
+        }
+        .about-heart-line {
+            text-align: center; font-family: 'Caveat', cursive;
+            font-size: 1em; color: rgba(44,47,51,0.3); padding: 6px 0;
+            letter-spacing: 3px;
+        }
+
         @media (max-width: 480px) {
             .tilt-wrapper { padding: 15px; } .paper-card { padding: 30px 20px; transform-style: flat; box-shadow: 0 8px 24px rgba(0,0,0,0.45); }
             .card-inner { transform: none; } .avatar { width: 100px; height: 100px; } .polaroid-box { padding: 8px 8px 0 8px; }
@@ -506,60 +624,242 @@
 
                 <h1 class="name" data-text="mirza" id="name-el">mirza</h1>
 
-                <div class="bio-strip" id="bio-container">
-                    <div class="bio-line">> arch linux & hyprland enthusiast</div>
-                    <div class="bio-line">> living in the cozy lo-fi space</div>
-                    <div class="bio-line">> currently vibing playing valo</div>
-                    <div class="bio-line">> <i class="fas fa-crosshairs"></i> <span class="valo-id">NAdriayan#Mirza</span><span class="cursor" id="cursor"></span></div>
+                <div class="tab-bar" id="tab-bar">
+                    <button class="tab-btn active" data-tab="home"><span class="tab-icon">📋</span>home</button>
+                    <button class="tab-btn" data-tab="music"><span class="tab-icon">🎵</span>music</button>
+                    <button class="tab-btn" data-tab="games"><span class="tab-icon">🎮</span>games</button>
+                    <button class="tab-btn" data-tab="about"><span class="tab-icon">🐾</span>me</button>
                 </div>
 
-                <div class="social-icons">
-                    <a href="https://github.com/Kazemir-Zane" target="_blank" class="social-btn"><i class="fab fa-github"></i></a>
-                    <a href="https://discord.gg/SxHNkeURdJ" target="_blank" class="social-btn"><i class="fab fa-discord"></i></a>
-                    <a href="https://www.instagram.com/mzaa_andr/" target="_blank" class="social-btn"><i class="fab fa-instagram"></i></a>
-                    <a href="https://steamcommunity.com/id/KazemirZane/" target="_blank" class="social-btn"><i class="fab fa-steam"></i></a>
-                </div>
+                <div class="tab-content-area">
 
-                <div class="widget-container">
-                    <div class="tape" style="width: 50px; height: 18px; top: -6px; left: 15px; transform: rotate(-5deg);"></div>
-                    <img src="https://discord.c99.nl/widget/theme-5/1089547617521913987.png" alt="Discord Status" class="discord-widget">
-                </div>
-
-                <div class="audio-player-widget" id="audio-player">
-                    <!-- top row: play + title + visualizer -->
-                    <div class="player-top-row">
-                        <button class="play-toggle" id="play-toggle-btn"><i class="fas fa-pause" id="play-icon"></i></button>
-                        <div class="song-details">
-                            <div class="song-title">Tea Time - 샛별</div>
-                            <div class="song-subtitle">lo-fi ☕ chill</div>
+                    <div class="tab-panel active" id="tab-home">
+                        <div class="bio-strip" id="bio-container">
+                            <div class="bio-line">> arch linux & hyprland enthusiast</div>
+                            <div class="bio-line">> living in the cozy lo-fi space</div>
+                            <div class="bio-line">> currently vibing playing valo</div>
+                            <div class="bio-line">> <i class="fas fa-crosshairs"></i> <span class="valo-id">NAdriayan#Mirza</span><span class="cursor" id="cursor"></span></div>
                         </div>
-                        <div class="visualizer paused" id="visualizer">
-                            <div class="bar"></div><div class="bar"></div>
-                            <div class="bar"></div><div class="bar"></div>
-                            <div class="bar"></div>
+
+                        <div class="social-icons">
+                            <a href="https://github.com/Kazemir-Zane" target="_blank" class="social-btn"><i class="fab fa-github"></i></a>
+                            <a href="https://discord.gg/SxHNkeURdJ" target="_blank" class="social-btn"><i class="fab fa-discord"></i></a>
+                            <a href="https://www.instagram.com/mzaa_andr/" target="_blank" class="social-btn"><i class="fab fa-instagram"></i></a>
+                            <a href="https://steamcommunity.com/id/KazemirZane/" target="_blank" class="social-btn"><i class="fab fa-steam"></i></a>
                         </div>
-                    </div>
-                    <!-- seek row -->
-                    <div class="player-seek-row">
-                        <span class="time-label" id="time-current">0:00</span>
-                        <div class="seek-track" id="seek-track">
-                            <div class="seek-fill" id="seek-fill">
-                                <div class="seek-thumb"></div>
+
+                        <div class="widget-container">
+                            <div class="tape" style="width: 50px; height: 18px; top: -6px; left: 15px; transform: rotate(-5deg);"></div>
+                            <img src="https://discord.c99.nl/widget/theme-5/1089547617521913987.png" alt="Discord Status" class="discord-widget">
+                        </div>
+
+                        <div class="audio-player-widget" id="audio-player">
+                            <div class="player-top-row">
+                                <button class="play-toggle" id="play-toggle-btn"><i class="fas fa-pause" id="play-icon"></i></button>
+                                <div class="song-details">
+                                    <div class="song-title">Tea Time - 샛별</div>
+                                    <div class="song-subtitle">lo-fi ☕ chill</div>
+                                </div>
+                                <div class="visualizer paused" id="visualizer">
+                                    <div class="bar"></div><div class="bar"></div>
+                                    <div class="bar"></div><div class="bar"></div>
+                                    <div class="bar"></div>
+                                </div>
                             </div>
-                            <input type="range" class="seek-input" id="seek-input" min="0" max="100" value="0" step="0.1">
+                            <div class="player-seek-row">
+                                <span class="time-label" id="time-current">0:00</span>
+                                <div class="seek-track" id="seek-track">
+                                    <div class="seek-fill" id="seek-fill">
+                                        <div class="seek-thumb"></div>
+                                    </div>
+                                    <input type="range" class="seek-input" id="seek-input" min="0" max="100" value="0" step="0.1">
+                                </div>
+                                <span class="time-label" id="time-total">–:––</span>
+                            </div>
+                            <div class="player-vol-row">
+                                <i class="fas fa-volume-down vol-icon" id="vol-icon"></i>
+                                <div class="vol-track" id="vol-track">
+                                    <div class="vol-fill" id="vol-fill"></div>
+                                    <div class="vol-thumb" id="vol-thumb"></div>
+                                    <input type="range" class="vol-input" id="vol-input" min="0" max="100" value="40" step="1">
+                                </div>
+                                <span class="vol-label" id="vol-label">40%</span>
+                            </div>
                         </div>
-                        <span class="time-label" id="time-total">–:––</span>
                     </div>
-                    <!-- volume row -->
-                    <div class="player-vol-row">
-                        <i class="fas fa-volume-down vol-icon" id="vol-icon"></i>
-                        <div class="vol-track" id="vol-track">
-                            <div class="vol-fill" id="vol-fill"></div>
-                            <div class="vol-thumb" id="vol-thumb"></div>
-                            <input type="range" class="vol-input" id="vol-input" min="0" max="100" value="40" step="1">
+
+                    <div class="tab-panel" id="tab-music">
+                        <div class="music-tab-header">♫ songs i've been vibing to ♫</div>
+                        <div class="music-list" id="music-list">
+                            <div class="music-item" data-idx="0">
+                                <span class="music-num">1</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">No Wind Resistance x Hoodtrap</div><div class="music-artist">LENZX & KRKVMA</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="1">
+                                <span class="music-num">2</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">GLITCH IN YOUR HEART</div><div class="music-artist">gabemtnz • COMPUTER ANGELS</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="2">
+                                <span class="music-num">3</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">Bad Ideas</div><div class="music-artist">Tessa Violet</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="3">
+                                <span class="music-num">4</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">pantai</div><div class="music-artist">prodBigMike</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="4">
+                                <span class="music-num">5</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">ビプパペット</div><div class="music-artist">r-906</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="5">
+                                <span class="music-num">6</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">シリーテラー - Silly Terror</div><div class="music-artist">r-906 (feat. IA)</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="6">
+                                <span class="music-num">7</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">Crush</div><div class="music-artist">Tessa Violet</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="7">
+                                <span class="music-num">8</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">We're the Perfect Pair</div><div class="music-artist">BriceBeatz</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="8">
+                                <span class="music-num">9</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">S+ Sunset !</div><div class="music-artist">Bunting</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="9">
+                                <span class="music-num">10</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">ideology of a ghost</div><div class="music-artist">Davin Glover feat. 1nonly</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="10">
+                                <span class="music-num">11</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">Goodbye My Baby</div><div class="music-artist">Jace June</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
+                            <div class="music-item" data-idx="11">
+                                <span class="music-num">12</span>
+                                <div class="music-mini-viz"><div class="mbar" style="height:4px"></div><div class="mbar" style="height:8px"></div><div class="mbar" style="height:6px"></div></div>
+                                <div class="music-info"><div class="music-title">Tea Time</div><div class="music-artist">샛별 (lo-fi ☕)</div></div>
+                                <i class="fas fa-heart music-heart"></i>
+                            </div>
                         </div>
-                        <span class="vol-label" id="vol-label">40%</span>
                     </div>
+
+                    <div class="tab-panel" id="tab-games">
+                        <div class="games-header">⚔ my game shelf ⚔</div>
+                        <div class="games-grid">
+                            <div class="game-card">
+                                <span class="game-icon">⚡</span>
+                                <div class="game-info"><div class="game-name">Valorant</div><div class="game-tag">competitive</div></div>
+                                <span class="game-fav-badge">★</span>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">🔫</span>
+                                <div class="game-info"><div class="game-name">Apex Legends</div><div class="game-tag">battle royale</div></div>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">⛏️</span>
+                                <div class="game-info"><div class="game-name">Minecraft</div><div class="game-tag">java & bedrock</div></div>
+                                <span class="game-fav-badge">★</span>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">💣</span>
+                                <div class="game-info"><div class="game-name">CS2</div><div class="game-tag">tactical fps</div></div>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">🎖️</span>
+                                <div class="game-info"><div class="game-name">Battlefield 2042</div><div class="game-tag">fps</div></div>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">🗡️</span>
+                                <div class="game-info"><div class="game-name">Dota 2</div><div class="game-tag">moba</div></div>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">⚽</span>
+                                <div class="game-info"><div class="game-name">EA FC 25</div><div class="game-tag">sports</div></div>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">🏎️</span>
+                                <div class="game-info"><div class="game-name">Assetto Corsa</div><div class="game-tag">sim racing</div></div>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">🌆</span>
+                                <div class="game-info"><div class="game-name">GTA V / FiveM</div><div class="game-tag">roleplay</div></div>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">📱</span>
+                                <div class="game-info"><div class="game-name">MLBB</div><div class="game-tag">mobile moba</div></div>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">👑</span>
+                                <div class="game-info"><div class="game-name">Honor of Kings</div><div class="game-tag">mobile moba</div></div>
+                            </div>
+                            <div class="game-card">
+                                <span class="game-icon">⚔️</span>
+                                <div class="game-info"><div class="game-name">Clash of Clans</div><div class="game-tag">strategy</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="tab-about">
+                        <div class="about-section">
+                            <div class="about-note">
+                                <span class="about-label">👤 who am i?</span>
+                                mirza. 19 y/o. born Feb 14 💙<br>
+                                a tech nerd who loves lo-fi &amp; late nights.<br>
+                                arch linux + hyprland is my whole personality.
+                                <div class="about-stamp">~ written in pencil ~</div>
+                            </div>
+                            <div class="about-note">
+                                <span class="about-label">🖥️ tech stuff</span>
+                                <span class="about-tag">Arch Linux</span>
+                                <span class="about-tag">Hyprland</span>
+                                <span class="about-tag">Python &amp; Flask</span>
+                                <span class="about-tag">PC Builder</span>
+                                <span class="about-tag">Ryzen 5 5600G</span>
+                                <span class="about-tag">RX 6600 XT</span>
+                                <span class="about-tag">GPU unbricker 😎</span>
+                            </div>
+                            <div class="about-note">
+                                <span class="about-label">📺 currently watching</span>
+                                <span class="about-tag">Jujutsu Kaisen</span>
+                                <span class="about-tag">Chainsaw Man</span>
+                                <span class="about-tag">Naruto</span>
+                            </div>
+                            <div class="about-note">
+                                <span class="about-label">✨ random facts</span>
+                                ☕ coffee &gt; everything<br>
+                                🐾 cats are superior beings<br>
+                                🎮 i game on Linux with Lutris<br>
+                                💸 secretly investing in reksa dana<br>
+                                🌿 loves nature trips &amp; palm plantations
+                                <div class="about-stamp">~ kazemir-zane ~</div>
+                            </div>
+                            <div class="about-heart-line">· · · ♡ · · ·</div>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
@@ -579,7 +879,6 @@
             let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2;
             let ringX = mouseX, ringY = mouseY;
 
-            // Hide cursor when leaving window
             document.addEventListener('mouseleave', () => {
                 cursorDot.classList.remove('visible');
                 cursorRing.classList.remove('visible');
@@ -621,6 +920,8 @@
         const bgMusic = document.getElementById('bg-music');
         const bgVideo = document.getElementById('bg-video');
         const shutterSfx = new Audio('shutter.mp3');
+
+        let isTiltActive = false;
 
         function parseLineSegments(lineEl) {
             const segments = [];
@@ -669,14 +970,16 @@
         welcomeScreen.addEventListener('click', () => {
             welcomeScreen.classList.add('fade-out');
             mainWrapper.classList.add('show');
+            
+            setTimeout(() => { isTiltActive = true; }, 1800);
+
             bgMusic.play().catch(() => {}); bgVideo.play().catch(() => {});
             document.getElementById('visualizer').classList.remove('paused');
             document.getElementById('play-icon').className = 'fas fa-pause';
             startTypingEffect();
         }, { once: true });
 
-        // ── Audio Player ──
-        bgMusic.volume = 0.40; // default 40% — not too loud
+        bgMusic.volume = 0.40;
         const playToggleBtn = document.getElementById('play-toggle-btn');
         const visualizer = document.getElementById('visualizer');
         const playIcon = document.getElementById('play-icon');
@@ -705,7 +1008,6 @@
         function setVolume(v) {
             bgMusic.volume = v / 100;
             volFill.style.width = v + '%';
-            const thumbPct = (v / 100) * (volInput.offsetWidth || 200);
             volThumb.style.right = 'auto';
             volThumb.style.left = 'calc(' + v + '% - 4px)';
             volLabel.textContent = v + '%';
@@ -713,7 +1015,7 @@
                               : v < 50 ? 'fas fa-volume-down vol-icon'
                               : 'fas fa-volume-up vol-icon';
         }
-        setVolume(40); // init
+        setVolume(40);
         volFill.style.width = '40%';
 
         bgMusic.addEventListener('loadedmetadata', () => { timeTotal.textContent = fmtTime(bgMusic.duration); });
@@ -764,6 +1066,7 @@
         if (!isMobile) {
             let tiltRAF = null;
             mainWrapper.addEventListener('mousemove', (e) => {
+                if (!isTiltActive) return;
                 if (!mainWrapper.classList.contains('show')) return;
                 if (tiltRAF) return;
                 tiltRAF = requestAnimationFrame(() => {
@@ -792,7 +1095,6 @@
         polaroid.addEventListener('click', (e) => {
             e.stopPropagation();
             polaroid.classList.add('flash');
-            // size the flash overlay to cover only the image
             const img = polaroid.querySelector('.avatar');
             const overlay = polaroid.querySelector('.flash-overlay');
             if (overlay && img) { overlay.style.height = img.offsetHeight + 'px'; }
@@ -824,7 +1126,7 @@
         }
 
         card.addEventListener('click', (e) => {
-            if (e.target.closest('button, a, .widget-container, .polaroid-box, .coffee-stain')) return;
+            if (e.target.closest('button, a, .widget-container, .polaroid-box, .coffee-stain, .tab-bar, .tab-content-area')) return;
             spawnSplash(e.clientX, e.clientY);
         });
 
@@ -876,7 +1178,6 @@
             }, 4000);
         }
 
-        // Sparkle effect on social buttons
         const sparkleEmojis = ['✨','⭐','🌟','💫','🐾','🎵','🎶'];
         document.querySelectorAll('.social-btn').forEach(btn => {
             btn.addEventListener('mouseenter', () => {
@@ -896,7 +1197,6 @@
             });
         });
 
-        // Doodle click interactions
         document.querySelectorAll('.doodle').forEach(doodle => {
             doodle.style.cursor = 'pointer';
             doodle.addEventListener('click', (e) => {
@@ -908,7 +1208,6 @@
             });
         });
 
-        // Bio strip ripple on click
         const bioStrip = document.getElementById('bio-container');
         bioStrip.addEventListener('click', (e) => {
             const r = bioStrip.getBoundingClientRect();
@@ -918,6 +1217,53 @@
             ripple.style.top = (e.clientY - r.top) + 'px';
             bioStrip.appendChild(ripple);
             setTimeout(() => ripple.remove(), 620);
+        });
+
+        let currentTab = 'home';
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const target = btn.dataset.tab;
+                if (target === currentTab) return;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('tab-' + target).classList.add('active');
+                currentTab = target;
+            });
+        });
+
+        let currentMusicIdx = -1;
+        const musicToasts = [
+            '🎵 vibe check: passed','🎶 lowkey a banger','☕ tea time energy','🐾 paw approved','✨ this one hits different','💙 mood: this song'
+        ];
+        document.querySelectorAll('.music-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(item.dataset.idx);
+                if (currentMusicIdx === idx) {
+                    item.classList.remove('playing');
+                    currentMusicIdx = -1;
+                    return;
+                }
+                document.querySelectorAll('.music-item').forEach(i => i.classList.remove('playing'));
+                item.classList.add('playing');
+                currentMusicIdx = idx;
+                const t = secretToast;
+                t.textContent = musicToasts[Math.floor(Math.random() * musicToasts.length)];
+                t.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+            });
+        });
+
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
+                card.style.transition = 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1)';
+                card.style.transform = 'translateY(-5px) rotate(-1deg) scale(1.06)';
+                setTimeout(() => { card.style.transform = ''; }, 320);
+            });
         });
     </script>
 </body>
