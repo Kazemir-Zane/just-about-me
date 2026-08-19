@@ -578,6 +578,61 @@
             .card-inner { transform: none; } .avatar { width: 100px; height: 100px; } .polaroid-box { padding: 8px 8px 0 8px; }
             .bio-strip { font-size: 0.8em; padding: 8px 12px; } .social-btn { width: 40px; height: 40px; font-size: 1.2em; transition: color 0.2s; }
         }
+
+        /* --- secret message feature --- */
+        .secret-open-btn {
+            display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; margin-bottom: 22px;
+            background: var(--paper-bg); color: var(--blue-ink); font-family: 'Caveat', cursive; font-size: 1.25em;
+            border: 1.5px dashed var(--blue-ink); border-radius: 20px; padding: 8px 18px; cursor: pointer;
+            transition: transform 0.2s ease-out, background 0.2s, box-shadow 0.2s; box-shadow: 2px 2px 0 rgba(59,89,152,0.15);
+        }
+        .secret-open-btn:hover { transform: translateY(-2px) rotate(-1deg); background: rgba(59,89,152,0.08); box-shadow: 3px 4px 0 rgba(59,89,152,0.2); }
+        .secret-open-btn:active { transform: translateY(0) rotate(0deg) scale(0.97); }
+
+        #secret-modal {
+            position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center;
+            background: rgba(20, 18, 15, 0.55); backdrop-filter: blur(2px);
+            opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
+        }
+        #secret-modal.show { opacity: 1; pointer-events: auto; }
+
+        .secret-modal-card {
+            position: relative; width: min(90vw, 380px); background: var(--paper-bg); color: var(--ink);
+            border-radius: 4px; padding: 32px 26px 26px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            font-family: 'Special Elite', monospace; text-align: center;
+            transform: scale(0.85) rotate(-2deg); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #secret-modal.show .secret-modal-card { transform: scale(1) rotate(0deg); }
+
+        .secret-modal-tape {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg);
+            width: 70px; height: 22px; background: var(--tape); box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .secret-modal-close {
+            position: absolute; top: 8px; right: 10px; background: none; border: none; color: var(--ink);
+            font-size: 1.4em; line-height: 1; cursor: pointer; opacity: 0.55; transition: opacity 0.2s, transform 0.2s;
+        }
+        .secret-modal-close:hover { opacity: 1; transform: rotate(90deg); color: var(--blue-ink); }
+
+        .secret-modal-title { font-family: 'Caveat', cursive; font-size: 1.8em; color: var(--blue-ink); margin-bottom: 4px; }
+        .secret-modal-sub { font-size: 0.75em; opacity: 0.65; margin-bottom: 18px; }
+
+        .secret-modal-textarea {
+            width: 100%; min-height: 110px; resize: vertical; background: rgba(255,255,255,0.6);
+            border: 1.5px dashed var(--blue-ink); border-radius: 4px; padding: 12px; font-family: 'Special Elite', monospace;
+            font-size: 0.9em; color: var(--ink); outline: none; margin-bottom: 16px; transition: background 0.2s, border-color 0.2s;
+        }
+        .secret-modal-textarea:focus { background: rgba(255,255,255,0.9); border-color: var(--accent-warm); }
+
+        .secret-modal-send {
+            width: 100%; background: var(--blue-ink); color: var(--paper-bg); font-family: 'Caveat', cursive; font-size: 1.3em;
+            border: none; border-radius: 20px; padding: 10px 0; cursor: pointer; transition: transform 0.15s ease-out, opacity 0.2s, background 0.2s;
+        }
+        .secret-modal-send:hover:not(:disabled) { transform: translateY(-2px); background: #2f4577; }
+        .secret-modal-send:active:not(:disabled) { transform: translateY(0) scale(0.97); }
+        .secret-modal-send:disabled { opacity: 0.6; cursor: default; }
+
     </style>
 </head>
 <body>
@@ -601,6 +656,17 @@
             <div class="welcome-text">click to enter</div>
         </div>
         <div class="scroll-hint"><i class="fas fa-chevron-down"></i></div>
+    </div>
+
+    <div id="secret-modal">
+        <div class="secret-modal-card">
+            <button class="secret-modal-close" id="secret-modal-close" aria-label="close">&times;</button>
+            <div class="secret-modal-tape"></div>
+            <h2 class="secret-modal-title">🤫 leave a secret note</h2>
+            <p class="secret-modal-sub">anonymous ~ no names, no traces</p>
+            <textarea id="secret-msg-input" class="secret-modal-textarea" placeholder="type your secret here..." maxlength="500" rows="5"></textarea>
+            <button id="secret-send-btn" class="secret-modal-send">send it off 🕊️</button>
+        </div>
     </div>
 
     <div class="tilt-wrapper" id="tilt-zone">
@@ -647,6 +713,7 @@
                             <a href="https://www.instagram.com/mzaa_andr/" target="_blank" class="social-btn"><i class="fab fa-instagram"></i></a>
                             <a href="https://steamcommunity.com/id/KazemirZane/" target="_blank" class="social-btn"><i class="fab fa-steam"></i></a>
                         </div>
+                        <button id="open-secret-btn" class="secret-open-btn">✉️ send me a secret message...</button>
 
                         <div class="widget-container">
                             <div class="tape" style="width: 50px; height: 18px; top: -6px; left: 15px; transform: rotate(-5deg);"></div>
@@ -1240,6 +1307,80 @@
                 setTimeout(() => { card.style.transform = ''; }, 320);
             });
         });
+
+        // --- secret message feature ---
+        const secretModal = document.getElementById('secret-modal');
+        const openSecretBtn = document.getElementById('open-secret-btn');
+        const closeSecretBtn = document.getElementById('secret-modal-close');
+        const secretMsgInput = document.getElementById('secret-msg-input');
+        const secretSendBtn = document.getElementById('secret-send-btn');
+        const SECRET_API_URL = 'https://NAdriayan.pythonanywhere.com/api/kirim-pesan';
+        const secretSendDefaultText = secretSendBtn.textContent;
+
+        function openSecretModal() {
+            secretModal.classList.add('show');
+            setTimeout(() => secretMsgInput.focus(), 300);
+        }
+        function closeSecretModal() {
+            secretModal.classList.remove('show');
+        }
+
+        openSecretBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openSecretModal();
+        });
+
+        closeSecretBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeSecretModal();
+        });
+
+        secretModal.addEventListener('click', (e) => {
+            if (e.target === secretModal) closeSecretModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && secretModal.classList.contains('show')) closeSecretModal();
+        });
+
+        secretSendBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const message = secretMsgInput.value.trim();
+            if (!message) {
+                secretMsgInput.focus();
+                return;
+            }
+
+            secretSendBtn.disabled = true;
+            secretSendBtn.textContent = 'sending...';
+
+            try {
+                const res = await fetch(SECRET_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pesan: message })
+                });
+
+                if (!res.ok) throw new Error('request failed');
+
+                secretToast.textContent = '🕊️ secret sent~ thank you!';
+                secretToast.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => secretToast.classList.remove('show'), 2500);
+
+                secretMsgInput.value = '';
+                closeSecretModal();
+            } catch (err) {
+                secretToast.textContent = '😥 couldn\'t send, try again?';
+                secretToast.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => secretToast.classList.remove('show'), 2500);
+            } finally {
+                secretSendBtn.disabled = false;
+                secretSendBtn.textContent = secretSendDefaultText;
+            }
+        });
+
     </script>
 </body>
 </html>
